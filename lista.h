@@ -40,12 +40,14 @@ typedef enum{
     TOKEN_ATRIBUICAO,
     TOKEN_MULTIPLICACAO,
     TOKEN_DIVISAO,
-    TOKEN_PONTO
+    TOKEN_PONTO,
+    TOKEN_ABRE_PARENTESES,
+    TOKEN_FECHA_PARENTESES
 }TokenAlias;
 
 typedef struct info{
     TokenAlias alias;
-    char value[13]; // maior valor: "FIM_ENQUANTO"
+    char value[1024]; // tamanho máximo do buffer: 1 KB
 
     // Preencha o tipo com as informações desejadas...
 }Info;

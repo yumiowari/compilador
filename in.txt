@@ -1,30 +1,17 @@
-CADEIA
-CARACTER
-ESCREVA
-ENQUANTO
-ENTAO
-FIM
-FIM_ENQUANTO
-FIM_SE
+PROGRAMA fatorial_exemplo
 INICIO
-LISTA_INT
-LISTA_REAL
-LEIA
-PROGRAMA
-REAL
-SE
-"rafael"
-,
-[    
-]
-.
-.M.
-.m.
-.I.
-+
--
-:=
-*
-/
-abcDEF;
-123654;
+{DECLARACOES}
+INTEIRO argumento, fatorial
+{ALGORITMO}
+{Calcula o fatorial de um número inteiro}
+LEIA argumento
+fatorial := argumento
+SE argumento .I. 0
+ENTAO fatorial := 1
+FIM_SE
+ENQUANTO argumento .M. 1
+fatorial := fatorial * argumento
+argumento := argumento - 1
+FIM_ENQUANTO
+ESCREVA 'fatorial = ', fatorial
+FIM
