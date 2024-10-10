@@ -38,6 +38,14 @@
                       '/' FATOR TERMO_REC |
                       ':=' FATOR TERMO_REC | ε;
          FATOR -> FATOR'.'num | num | id}.
+
+     Dada as expressões regulares:
+
+     id = letra(letra|digito)*
+
+     str = '"'(letra|numero)*'"'
+
+     num = digito*
 */          
 
 #include <stdio.h>
@@ -95,38 +103,39 @@ char *leEntrada(){
 
 bool forFinal(int estado){
      switch(estado){
-          case 113:  return true;
-          case 125:  return true;
-          case 215:  return true;
-          case 2215: return true;
-          case 2222: return true;
-          case 31:   return true;
-          case 317:  return true;
-          case 321:  return true;
-          case 40:   return true;
-          case 513:  return true;
-          case 524:  return true;
-          case 622:  return true;
-          case 633:  return true;
-          case 612:  return true;
-          case 71:   return true;
-          case 82:   return true;
-          case 90:   return true;
-          case 1001: return true;
-          case 11:   return true;
-          case 12:   return true;
-          case 13:   return true;
-          case 1400: return true;
-          case 1411: return true;
-          case 1421: return true;
-          case 1431: return true;
-          case 15:   return true;
-          case 16:   return true;
-          case 1700: return true;
-          case 18:   return true;
-          case 19:   return true;
-     
-          default:  return false;
+          case 6:   return true; // TOKEN_CADEIA
+          case 12:  return true; // TOKEN_CARACTER
+          case 19:  return true; // TOKEN_ESCREVA
+          case 26:  return true; // TOKEN_ENQUANTO
+          case 29:  return true; // TOKEN_ENTAO
+          case 32:  return true; // TOKEN_FIM
+          case 42:  return true; // TOKEN_FIM_ENQUANTO
+          case 44:  return true; // TOKEN_FIM_SE
+          case 50:  return true; // TOKEN_INICIO
+          case 55:  return true; // TOKEN_INTEIRO
+          case 64:  return true; // TOKEN_LISTA_INT
+          case 68:  return true; // TOKEN_LISTA_REAL
+          case 71:  return true; // TOKEN_LEIA
+          case 79:  return true; // TOKEN_PROGRAMA
+          case 83:  return true; // TOKEN_REAL
+          case 85:  return true; // TOKEN_SE
+          case 87:  return true; // TOKEN_STRING
+          case 88:  return true; // TOKEN_VIRGULA
+          case 89:  return true; // TOKEN_ABRE_COLCHETE
+          case 90:  return true; // TOKEN_FECHA_COLCHETE
+          case 92:  return true; // TOKEN_PONTO
+          case 94:  return true; // TOKEN_MAIOR
+          case 96:  return true; // TOKEN_MENOR
+          case 98:  return true; // TOKEN_IGUAL
+          case 99:  return true; // TOKEN_SOMA
+          case 100: return true; // TOKEN_SUBTRACAO
+          case 102: return true; // TOKEN_ATRIBUICAO
+          case 103: return true; // TOKEN_MULTIPLICACAO
+          case 104: return true; // TOKEN_DIVISAO
+          case 106: return true; // TOKEN_IDENTIFICADOR
+          case 108: return true; // TOKEN_NUMERO
+
+          default: return false;
      }
 }
 
@@ -153,9 +162,7 @@ bool varredura(){
                if(c != '\0'){
                     //printf("c = %c - estado = %d\n", c, estado);
                }else{
-                    if(forFinal(estado) == true){
-                         // caso ainda houver um token a ser classificado
-
+                    if(forFinal(estado) == true){ // caso ainda houver um token a ser classificado
                          flag = true;
                     }else{
                          break;
@@ -168,80 +175,107 @@ bool varredura(){
           switch(estado){
                case 0: // Σ
                     switch(c){
-                         case 'C': estado = 1; break;
-                         case 'E': estado = 2; break;
-                         case 'F': estado = 3; break;
-                         case 'i': estado = 4; break;
-                         case 'I': estado = 5; break;
-                         case 'L': estado = 6; break;
-                         case 'n': estado = 7; break;
-                         case 'R': estado = 8; break;
-                         case 'S': estado = 9; break;
-                         case 's': estado = 10; break;
-                         case ',': estado = 11; break;
-                         case '[': estado = 12; break;
-                         case ']': estado = 13; break;
-                         case '.': estado = 14; break;
-                         case '+': estado = 15; break;
-                         case '-': estado = 16; break;
-                         case ':': estado = 17; break;
-                         case '*': estado = 18; break;
-                         case '/': estado = 19; break;
+                         // reconhecimento de símbolos reservados
+                         case 'C': estado = 1;   break; // {CARACTER, CADEIA}
+                         case 'E': estado = 13;  break; // {ENQUANTO, ENTAO, ESCREVA}
+                         case 'F': estado = 30;  break; // {FIM, FIM_ENQUANTO, FIM_SE}
+                         case 'I': estado = 45;  break; // {INICIO, INTEIRO}
+                         case 'L': estado = 56;  break; // {LEIA, LISTA_INT, LISTA_REAL}
+                         case 'P': estado = 72;  break; // {PROGRAMA}
+                         case 'R': estado = 80;  break; // {REAL}
+                         case 'S': estado = 84;  break; // {SE}
+                         case '"': estado = 86;  break; // {str}
+                         case ',': estado = 88;  break; // {','}
+                         case '[': estado = 89;  break; // {'['}
+                         case ']': estado = 90;  break; // {']'}
+                         case '.': estado = 91;  break; // {'.M.', '.m.', '.I.', '.'}
+                         case '+': estado = 99;  break; // {'+'}
+                         case '-': estado = 100; break; // {'-'}
+                         case ':': estado = 101; break; // {':='}
+                         case '*': estado = 103; break; // {'*'}
+                         case '/': estado = 104; break; // {'/'}
+                         //
 
-                         default: estado = -1; break;
+                         // tratamento de erro
+                         default:  estado = -1;  break;
+                         //
                     }
+
+                    // {id}
+                    if((c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z')){ 
+                         if(
+                            c != 'C' &&
+                            c != 'E' &&
+                            c != 'F' &&
+                            c != 'I' &&
+                            c != 'L' &&
+                            c != 'P' &&
+                            c != 'R' &&
+                            c != 'S'
+                           )
+                         {
+                              estado = 105;
+                         }
+                    }
+                    //
+
+                    // {num}
+                    if((c >= '0') && (c <= '9')){
+                         estado = 107;
+                    }
+                    //
 
                     break;
 
                case 1: // {CADEIA, CARACTER}
                     if(c == 'A'){
-                         estado = 100;
+                         estado = 2;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 100: // {CADEIA, CARACTER}
+               case 2: // {CADEIA, CARACTER}
                     if(c == 'D'){
-                         estado = 110;
+                         estado = 3;
                     }else if(c == 'R'){
-                         estado = 120;
+                         estado = 7;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 110: // {CADEIA}
+               case 3: // {CADEIA}
                     if(c == 'E'){
-                         estado = 111;
+                         estado = 4;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 111: // {CADEIA}
+               case 4: // {CADEIA}
                     if(c == 'I'){
-                         estado = 112;
+                         estado = 5;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 112: // {CADEIA}
+               case 5: // {CADEIA}
                     if(c == 'A'){
-                         estado = 113;
+                         estado = 6;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 113: // TOKEN_CADEIA
+               // ESTADO FINAL
+               case 6: // TOKEN_CADEIA
                     printf("CADEIA\n");
 
                     estado = 0;
@@ -249,54 +283,55 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
                
-               case 120: // {CARACTER}
+               case 7: // {CARACTER}
                     if(c == 'A'){
-                         estado = 121;
+                         estado = 8;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 121: // {CARACTER}
+               case 8: // {CARACTER}
                     if(c == 'C'){
-                         estado = 122;
+                         estado = 9;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 122: // {CARACTER}
+               case 9: // {CARACTER}
                     if(c == 'T'){
-                         estado = 123;
+                         estado = 10;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 123: // {CARACTER}
+               case 10: // {CARACTER}
                     if(c == 'E'){
-                         estado = 124;
+                         estado = 11;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 124: // {CARACTER}
+               case 11: // {CARACTER}
                     if(c == 'R'){
-                         estado = 125;
+                         estado = 12;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 125: // TOKEN_CARACTER
+               // ESTADO FINAL
+               case 12: // TOKEN_CARACTER
                     printf("CARACTER\n");
 
                     estado = 0;
@@ -304,65 +339,66 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 2: // {ESCREVA, ENQUANTO, ENTAO}
+               case 13: // {ESCREVA, ENQUANTO, ENTAO}
                     if(c == 'S'){
-                         estado = 210;
+                         estado = 14;
                     }else if(c == 'N'){
-                         estado = 2200;
+                         estado = 20;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 210: // {ESCREVA}
+               case 14: // {ESCREVA}
                     if(c == 'C'){
-                         estado = 211;
+                         estado = 15;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 211: // {ESCREVA}
+               case 15: // {ESCREVA}
                     if(c == 'R'){
-                         estado = 212;
+                         estado = 16;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 212: // {ESCREVA}
+               case 16: // {ESCREVA}
                     if(c == 'E'){
-                         estado = 213;
+                         estado = 17;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 213: // {ESCREVA}
+               case 17: // {ESCREVA}
                     if(c == 'V'){
-                         estado = 214;
+                         estado = 18;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 214: // {ESCREVA}
+               case 18: // {ESCREVA}
                     if(c == 'A'){
-                         estado = 215;
+                         estado = 19;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 215: // TOKEN_ESCREVA
+               // ESTADO FINAL
+               case 19: // TOKEN_ESCREVA
                     printf("ESCREVA\n");
 
                     estado = 0;
@@ -370,65 +406,66 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 2200: // {ENQUANTO, ENTAO}
+               case 20: // {ENQUANTO, ENTAO}
                     if(c == 'Q'){
-                         estado = 2210;
+                         estado = 21;
                     }else if(c == 'T'){
-                         estado = 2220;
+                         estado = 27;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2210: // {ENQUANTO}
+               case 21: // {ENQUANTO}
                     if(c == 'U'){
-                         estado = 2211;
+                         estado = 22;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2211: // {ENQUANTO}
+               case 22: // {ENQUANTO}
                     if(c == 'A'){
-                         estado = 2212;
+                         estado = 23;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2212: // {ENQUANTO}
+               case 23: // {ENQUANTO}
                     if(c == 'N'){
-                         estado = 2213;
+                         estado = 24;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2213: // {ENQUANTO}
+               case 24: // {ENQUANTO}
                     if(c == 'T'){
-                         estado = 2214;
+                         estado = 25;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2214: // {ENQUANTO}
+               case 25: // {ENQUANTO}
                     if(c == 'O'){
-                         estado = 2215;
+                         estado = 26;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 2215: // TOKEN_ENQUANTO
+               // ESTADO FINAL
+               case 26: // TOKEN_ENQUANTO
                     printf("ENQUANTO\n");
 
                     estado = 0;
@@ -436,27 +473,28 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 2220: // {ENTAO}
+               case 27: // {ENTAO}
                     if(c == 'A'){
-                         estado = 2221;
+                         estado = 28;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 2221: // {ENTAO}
+               case 28: // {ENTAO}
                     if(c == 'O'){
-                         estado = 2222;
+                         estado = 29;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 2222: // TOKEN_ENTAO
+               // ESTADO FINAL
+               case 29: // TOKEN_ENTAO
                     printf("ENTAO\n");
 
                     estado = 0;
@@ -464,25 +502,25 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 3: // {FIM, FIM_ENQUANTO, FIM_SE}
+               case 30: // {FIM, FIM_ENQUANTO, FIM_SE}
                     if(c == 'I'){
-                         estado = 30; 
+                         estado = 31; 
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 30: // {FIM, FIM_ENQUANTO, FIM_SE}
+               case 31: // {FIM, FIM_ENQUANTO, FIM_SE}
                     if(c == 'M'){
-                         // espia o próximo caractere
-                         c = buffer[i + 1];
+                         c = buffer[i + 1]; // espia o próximo caractere
 
                          if(c != '_'){
-                              estado = 31;
+                              estado = 32;
                          }else{
-                              estado = 300;
+                              estado = 33;
                          }
                     }else{
                          estado = -1;
@@ -490,8 +528,8 @@ bool varredura(){
 
                     break;
 
-               /* ESTADO FINAL */
-               case 31: // TOKEN_FIM
+               // ESTADO FINAL
+               case 32: // TOKEN_FIM
                     printf("FIM\n");
 
                     estado = 0;
@@ -499,121 +537,66 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 300: // {FIM_ENQUANTO, FIM_SE}
+               case 33: // {FIM_ENQUANTO, FIM_SE}
                     if(c == '_'){
-                         estado = 301;
+                         estado = 34;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 301: // {FIM_ENQUANTO, FIM_SE}
+               case 34: // {FIM_ENQUANTO, FIM_SE}
                     if(c == 'E'){
-                         estado = 310;
+                         estado = 35;
                     }else if(c == 'S'){
-                         estado = 320;
+                         estado = 43;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 310: // {FIM_ENQUANTO}
+               case 35: // {FIM_ENQUANTO}
                     if(c == 'N'){
-                         estado = 311;
+                         estado = 36;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 311: // {FIM_ENQUANTO}
+               case 36: // {FIM_ENQUANTO}
                     if(c == 'Q'){
-                         estado = 312;
+                         estado = 37;
                     }else{
                          estado = -1;
                     }
                     
                     break;
 
-               case 312: // {FIM_ENQUANTO}
+               case 37: // {FIM_ENQUANTO}
                     if(c == 'U'){
-                         estado = 313;
+                         estado = 38;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 313: // {FIM_ENQUANTO}
+               case 38: // {FIM_ENQUANTO}
                     if(c == 'A'){
-                         estado = 314;
+                         estado = 39;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 314: // {FIM_ENQUANTO}
+               case 39: // {FIM_ENQUANTO}
                     if(c == 'N'){
-                         estado = 315;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 315: // {FIM_ENQUANTO}
-                    if(c == 'T'){
-                         estado = 316;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 316: // {FIM_ENQUANTO}
-                    if(c == 'O'){
-                         estado = 317;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 317: // TOKEN_FIM_ENQUANTO
-                    printf("FIM_ENQUANTO\n");
-
-                    estado = 0;
-
-                    i--; // retrocede
-
-                    break;
-
-               case 320: // {FIM_SE}
-                    if(c == 'E'){
-                         estado = 321;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 321: // TOKEN_FIM_SE
-                    printf("FIM_SE\n");
-
-                    estado = 0;
-
-                    i--; // retrocede
-
-                    break;
-
-               case 4: // {id}
-                    if(c == 'd'){
                          estado = 40;
                     }else{
                          estado = -1;
@@ -621,18 +604,95 @@ bool varredura(){
 
                     break;
 
-               /* ESTADO FINAL */
-               case 40: // TOKEN_ID
-                    printf("id\n");
+               case 40: // {FIM_ENQUANTO}
+                    if(c == 'T'){
+                         estado = 41;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 41: // {FIM_ENQUANTO}
+                    if(c == 'O'){
+                         estado = 42;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 42: // TOKEN_FIM_ENQUANTO
+                    printf("FIM_ENQUANTO\n");
 
                     estado = 0;
 
                     i--; // retrocede
 
                     break;
+               //
 
-               case 5: // {INICIO, INTEIRO}
+               case 43: // {FIM_SE}
+                    if(c == 'E'){
+                         estado = 44;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 44: // TOKEN_FIM_SE
+                    printf("FIM_SE\n");
+
+                    estado = 0;
+
+                    i--; // retrocede
+
+                    break;
+               //
+
+               case 45: // {INICIO, INTEIRO}
                     if(c == 'N'){
+                         estado = 46;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 46: // {INICIO, INTEIRO}
+                    if(c == 'I'){
+                         estado = 47;
+                    }else if(c == 'T'){
+                         estado = 51;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 47: // {INICIO}
+                    if(c == 'C'){
+                         estado = 48;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 48: // {INICIO}
+                    if(c == 'I'){
+                         estado = 49;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 49: // {INICIO}
+                    if(c == 'O'){
                          estado = 50;
                     }else{
                          estado = -1;
@@ -640,46 +700,8 @@ bool varredura(){
 
                     break;
 
-               case 50: // {INICIO, INTEIRO}
-                    if(c == 'I'){
-                         estado = 510;
-                    }else if(c == 'T'){
-                         estado = 520;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 510: // {INICIO}
-                    if(c == 'C'){
-                         estado = 511;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 511: // {INICIO}
-                    if(c == 'I'){
-                         estado = 512;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 512: // {INICIO}
-                    if(c == 'O'){
-                         estado = 513;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 513: // TOKEN_INICIO
+               // ESTADO FINAL
+               case 50: // TOKEN_INICIO
                     printf("INICIO\n");
 
                     estado = 0;
@@ -687,45 +709,46 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 520: // {INTEIRO}
+               case 51: // {INTEIRO}
                     if(c == 'E'){
-                         estado = 521;
+                         estado = 52;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 521: // {INTEIRO}
+               case 52: // {INTEIRO}
                     if(c == 'I'){
-                         estado = 522;
+                         estado = 53;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 522: // {INTEIRO}
+               case 53: // {INTEIRO}
                     if(c == 'R'){
-                         estado = 523;
+                         estado = 54;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 523: // {INTEIRO}
+               case 54: // {INTEIRO}
                     if(c == 'O'){
-                         estado = 524;
+                         estado = 55;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 524: // TOKEN_INTEIRO
+               // ESTADO FINAL
+               case 55: // TOKEN_INTEIRO
                     printf("INTEIRO\n");
 
                     estado = 0;
@@ -733,12 +756,40 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 6: // {LISTA_INT, LISTA_REAL, LEIA}
+               case 56: // {LISTA_INT, LISTA_REAL, LEIA}
                     if(c == 'I'){
-                         estado = 60;
+                         estado = 57;
                     }else if(c == 'E'){
-                         estado = 610;
+                         estado = 69;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 57: // {LISTA_INT, LISTA_REAL}
+                    if(c == 'S'){
+                         estado = 58;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 58: // {LISTA_INT, LISTA_REAL}
+                    if(c == 'T'){
+                         estado = 59;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 59: // {LISTA_INT, LISTA_REAL}
+                    if(c == 'A'){
+                         estado = 60;
                     }else{
                          estado = -1;
                     }
@@ -746,7 +797,7 @@ bool varredura(){
                     break;
 
                case 60: // {LISTA_INT, LISTA_REAL}
-                    if(c == 'S'){
+                    if(c == '_'){
                          estado = 61;
                     }else{
                          estado = -1;
@@ -755,16 +806,18 @@ bool varredura(){
                     break;
 
                case 61: // {LISTA_INT, LISTA_REAL}
-                    if(c == 'T'){
+                    if(c == 'I'){
                          estado = 62;
+                    }else if(c == 'R'){
+                         estado = 65;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 62: // {LISTA_INT, LISTA_REAL}
-                    if(c == 'A'){
+               case 62: // {LISTA_INT}
+                    if(c == 'N'){
                          estado = 63;
                     }else{
                          estado = -1;
@@ -772,8 +825,8 @@ bool varredura(){
 
                     break;
 
-               case 63: // {LISTA_INT, LISTA_REAL}
-                    if(c == '_'){
+               case 63: // {LISTA_INT}
+                    if(c == 'T'){
                          estado = 64;
                     }else{
                          estado = -1;
@@ -781,37 +834,8 @@ bool varredura(){
 
                     break;
 
-               case 64: // {LISTA_INT, LISTA_REAL}
-                    if(c == 'I'){
-                         estado = 620;
-                    }else if(c == 'R'){
-                         estado = 630;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 620: // {LISTA_INT}
-                    if(c == 'N'){
-                         estado = 621;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 621: // {LISTA_INT}
-                    if(c == 'T'){
-                         estado = 622;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 622: // TOKEN_LISTA_INT
+               // ESTADO FINAL
+               case 64: // TOKEN_LISTA_INT
                     printf("LISTA_INT\n");
 
                     estado = 0;
@@ -819,36 +843,37 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 630: // {LISTA_REAL}
+               case 65: // {LISTA_REAL}
                     if(c == 'E'){
-                         estado = 631;
+                         estado = 66;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 631: // {LISTA_REAL}
+               case 66: // {LISTA_REAL}
                     if(c == 'A'){
-                         estado = 632;
+                         estado = 67;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 632: // {LISTA_REAL}
+               case 67: // {LISTA_REAL}
                     if(c == 'L'){
-                         estado = 633;
+                         estado = 68;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 633: // TOKEN_LISTA_REAL
+               // ESTADO FINAL
+               case 68: // TOKEN_LISTA_REAL
                     printf("LISTA_REAL\n");
 
                     estado = 0;
@@ -856,37 +881,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 610: // {LEIA}
+               case 69: // {LEIA}
                     if(c == 'I'){
-                         estado = 611;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               case 611: // {LEIA}
-                    if(c == 'A'){
-                         estado = 612;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 612: // TOKEN_LEIA
-                    printf("LEIA\n");
-
-                    estado = 0;
-
-                    i--; // retrocede
-
-                    break;
-
-               case 7: // {num}
-                    if(c == 'u'){
                          estado = 70;
                     }else{
                          estado = -1;
@@ -894,8 +892,8 @@ bool varredura(){
 
                     break;
 
-               case 70: // {num}
-                    if(c == 'm'){
+               case 70: // {LEIA}
+                    if(c == 'A'){
                          estado = 71;
                     }else{
                          estado = -1;
@@ -903,27 +901,93 @@ bool varredura(){
 
                     break;
 
-               /* ESTADO FINAL */
-               case 71: // TOKEN_NUM
-                    printf("num\n");
+               // ESTADO FINAL
+               case 71: // TOKEN_LEIA
+                    printf("LEIA\n");
 
                     estado = 0;
 
                     i--; // retrocede
 
                     break;
+               //
 
-               case 8: // {REAL}
-                    if(c == 'E'){
-                         estado = 80;
+               case 72:
+                    if(c == 'R'){
+                         estado = 73;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 80: // {REAL}
+               case 73:
+                    if(c == 'O'){
+                         estado = 74;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 74:
+                    if(c == 'G'){
+                         estado = 75;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 75:
+                    if(c == 'R'){
+                         estado = 76;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 76:
                     if(c == 'A'){
+                         estado = 77;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 77:
+                    if(c == 'M'){
+                         estado = 78;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               case 78:
+                    if(c == 'A'){
+                         estado = 79;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 79: // TOKEN_PROGRAMA
+                    printf("PROGRAMA\n");
+
+                    estado = 0;
+
+                    i--; // retrocede
+
+                    break;
+               //
+
+               case 80: // {REAL}
+                    if(c == 'E'){
                          estado = 81;
                     }else{
                          estado = -1;
@@ -932,7 +996,7 @@ bool varredura(){
                     break;
 
                case 81: // {REAL}
-                    if(c == 'L'){
+                    if(c == 'A'){
                          estado = 82;
                     }else{
                          estado = -1;
@@ -940,8 +1004,17 @@ bool varredura(){
 
                     break;
 
-               /* ESTADO FINAL */
-               case 82: // TOKEN_REAL
+               case 82: // {REAL}
+                    if(c == 'L'){
+                         estado = 83;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 83: // TOKEN_REAL
                     printf("REAL\n");
 
                     estado = 0;
@@ -949,18 +1022,19 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 9: // {SE}
+               case 84: // {SE}
                     if(c == 'E'){
-                         estado = 90;
+                         estado = 85;
                     }else{
                          estado = -1;
                     }
           
                     break;
 
-               /* ESTADO FINAL */
-               case 90:
+               // ESTADO FINAL
+               case 85: // TOKEN_SE
                     printf("SE\n");
 
                     estado = 0;
@@ -968,37 +1042,32 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 10: // {str}
-                    if(c == 't'){
-                         estado = 1000;
+               case 86: // '"'letra*'"'
+                    if((c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z') || (c >= '0') && (c <= '9')){
+                         estado = 86;
+                    }else if(c == '"'){
+                         estado = 87;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               case 1000: // {str}
-                    if(c == 'r'){
-                         estado = 1001;
-                    }else{
-                         estado = -1;
-                    }
-
-                    break;
-
-               /* ESTADO FINAL */
-               case 1001: // TOKEN_STR
-                    printf("str\n");
+               // ESTADO FINAL
+               case 87: // TOKEN_STRING
+                    printf("string\n");
 
                     estado = 0;
 
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 11: // // TOKEN_VIRGULA
+               // ESTADO FINAL
+               case 88: // TOKEN_VIRGULA
                     printf(",\n");
 
                     estado = 0;
@@ -1006,9 +1075,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 12: // TOKEN_ABRE_COLCHETE
+               // ESTADO FINAL
+               case 89: // TOKEN_ABRE_COLCHETE
                     printf("[\n");
 
                     estado = 0;
@@ -1016,9 +1086,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 13: // TOKEN_FECHA_COLCHETE
+               // ESTADO FINAL
+               case 90: // TOKEN_FECHA_COLCHETE
                     printf("]\n");
 
                     estado = 0;
@@ -1026,22 +1097,25 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 14: // {.M., .m., .I., '.'}
+               case 91: // {.M., .m., .I., '.'}
                     if(c == 'M'){
-                         estado = 1410;
+                         estado = 93;
                     }else if(c == 'm'){
-                         estado = 1420;
+                         estado = 95;
                     }else if(c == 'I'){
-                         estado = 1430;
+                         estado = 97;
                     }else{
-                         estado = 1400; // reconheceu '.'
+                         estado = 92; // reconheceu '.'
+
+                         i--; // retrocede
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 1400: // TOKEN_PONTO
+               // ESTADO FINAL
+               case 92: // TOKEN_PONTO
                     printf(".\n");
 
                     estado = 0;
@@ -1049,18 +1123,19 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 1410: // {.M.}
+               case 93: // {.M.}
                     if(c == '.'){
-                         estado = 1411;
+                         estado = 94;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 1411: // TOKEN_MAIOR
+               // ESTADO FINAL
+               case 94: // TOKEN_MAIOR
                     printf(".M.\n");
 
                     estado = 0;
@@ -1068,18 +1143,19 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 1420: // {.m.}
+               case 95: // {.m.}
                     if(c == '.'){
-                         estado = 1421;
+                         estado = 96;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 1421: // TOKEN_MENOR
+               // ESTADO FINAL
+               case 96: // TOKEN_MENOR
                     printf(".m.\n");
 
                     estado = 0;
@@ -1087,18 +1163,19 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 1430: // {.I.}
+               case 97: // {.I.}
                     if(c == '.'){
-                         estado = 1431;
+                         estado = 98;
                     }else{
                          return -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 1431: // TOKEN_IGUAL
+               // ESTADO FINAL
+               case 98: // TOKEN_IGUAL
                     printf(".I.\n");
 
                     estado = 0;
@@ -1106,9 +1183,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 15: // TOKEN_SOMA
+               // ESTADO FINAL
+               case 99: // TOKEN_SOMA
                     printf("+\n");
 
                     estado = 0;
@@ -1116,9 +1194,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 16: // TOKEN_SUBTRACAO
+               // ESTADO FINAL
+               case 100: // TOKEN_SUBTRACAO
                     printf("-\n");
 
                     estado = 0;
@@ -1126,18 +1205,19 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case 17: // {:=}
+               case 101: // {:=}
                     if(c == '='){
-                         estado = 1700;
+                         estado = 102;
                     }else{
                          estado = -1;
                     }
 
                     break;
 
-               /* ESTADO FINAL */
-               case 1700: // TOKEN_ATRIBUICAO
+               // ESTADO FINAL
+               case 102: // TOKEN_ATRIBUICAO
                     printf(":=\n");
 
                     estado = 0;
@@ -1145,9 +1225,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 18: // TOKEN_MULTIPLICACAO
+               // ESTADO FINAL
+               case 103: // TOKEN_MULTIPLICACAO
                     printf("*\n");
 
                     estado = 0;
@@ -1155,9 +1236,10 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               /* ESTADO FINAL */
-               case 19: // // TOKEN_DIVISAO
+               // ESTADO FINAL
+               case 104: // // TOKEN_DIVISAO
                     printf("/\n");
 
                     estado = 0;
@@ -1165,15 +1247,62 @@ bool varredura(){
                     i--; // retrocede
 
                     break;
+               //
 
-               case -1: // falha
-                    //printf("falhou!\n");
+               case 105: // {id}
+                    if((c >= 'A') && (c <= 'Z') || (c >= 'a') && (c <= 'z') || (c >= '0') && (c <= '9')){ // // letra(letra|digito)*
+                         estado = 105;
+                    }else if(c == ';'){ // alcançou o ';'
+                         estado = 106;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 106: // TOKEN_ID
+                    printf("identificador\n");
 
                     estado = 0;
 
-                    i--;
+                    i--; // retrocede
 
                     break;
+               //
+
+               case 107: // {num}
+                    if((c >= '0') && (c <= '9')){ // digito*
+                         estado = 107;
+                    }else if(c == ';'){ // alcançou o ';'
+                         estado = 108;
+                    }else{
+                         estado = -1;
+                    }
+
+                    break;
+
+               // ESTADO FINAL
+               case 108: // TOKEN_NUMERO
+                    printf("numero\n");
+
+                    estado = 0;
+
+                    i--; // retrocede
+
+                    break;
+               //
+
+               // ESTADO DE FALHA
+               case -1:
+                    printf("falhou!\n");
+
+                    estado = 0;
+
+                    i--; // retrocede
+
+                    break;
+               //
           }
 
           i++;

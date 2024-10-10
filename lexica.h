@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define TOKEN_PROGRAMA       "PROGRAMA"     // Início do programa
-#define TOKEN_ID             "id"           // Identificador
+#define TOKEN_IDENTIFICADOR  "id"           // Identificador
 #define TOKEN_INICIO         "INICIO"       // Início do bloco de comandos
 #define TOKEN_FIM            "FIM"          // Fim do programa
 #define TOKEN_INTEIRO        "INTEIRO"      // Declaração de inteiro
@@ -15,7 +15,7 @@
 #define TOKEN_LISTA_REAL     "LISTA_REAL"   // Declaração de lista de reais
 #define TOKEN_VIRGULA        ","            // Separador
 #define TOKEN_ABRE_COLCHETE  "["            // Abre colchete
-#define TOKEN_NUM            "num"          // Número inteiro
+#define TOKEN_NUMERO         "num"          // Número inteiro
 #define TOKEN_FECHA_COLCHETE "]"            // Fecha colchete
 #define TOKEN_ENQUANTO       "ENQUANTO"     // Laço enquanto
 #define TOKEN_ENTAO          "ENTAO"        // Início do bloco condicional
@@ -23,7 +23,7 @@
 #define TOKEN_SE             "SE"           // Condicional se
 #define TOKEN_FIM_SE         "FIM_SE"       // Fim do condicional
 #define TOKEN_ESCREVA        "ESCREVA"      // Comando de saída
-#define TOKEN_STR            "str"          // String
+#define TOKEN_STRING         "str"          // String
 #define TOKEN_LEIA           "LEIA"         // Comando de entrada
 #define TOKEN_MAIOR          ".M."          // Operador maior
 #define TOKEN_MENOR          ".m."          // Operador menor
