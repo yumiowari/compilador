@@ -68,6 +68,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h> // strcpy()
 
 #include "lista.h"
 
@@ -82,7 +83,7 @@ char *preencheEntrada(){
 
      buffer = (char*) malloc(sizeof(char) * buffer_size);
 
-     while(1){
+     while(true){
           c = getchar();
 
           if(c == EOF){
@@ -168,21 +169,31 @@ bool verificaFinal(int estado){
      }
 }
 
-bool varredura(){
+Lista *analiseLexica(){
      bool flag = false; // condição de parada
-     bool flagErro = false; // bandeira para caso de erro
-     int chave = 1; // 1º, 2º, 3º, ..., nº token
+
+     // para a varredura
+     bool flagErro = false; // para caso de erro
      char *buffer = NULL; // buffer de entrada
      int i = 0; // índice no buffer
-
-     Lista *tokens = fazLista();
-
-     buffer = preencheEntrada();
-     if(buffer == NULL)return false;
-
      int estado;
      char c;
 
+     buffer = preencheEntrada();
+     if(buffer == NULL)return NULL;
+     //
+
+     // para a classificação
+     char auxBffr[1024];
+     int j = 0; // índice no buffer auxiliar
+     Lista *tokens = NULL;
+     int chave = 1; // 1º, 2º, 3º, ..., nº token
+     Info dados;
+
+     tokens = fazLista();
+     if(tokens == NULL)return NULL;
+     //
+     
      while(!flag){
           if(!flag){
                c = buffer[i];
@@ -314,7 +325,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 6: // TOKEN_CADEIA
-                    printf("TOKEN_CADEIA\n");
+                    //printf("TOKEN_CADEIA\n");
+                    dados.alias = TOKEN_CADEIA;
+                    strcpy(dados.value, "CADEIA");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -370,7 +386,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 12: // TOKEN_CARACTER
-                    printf("TOKEN_CARACTER\n");
+                    //printf("TOKEN_CARACTER\n");
+                    dados.alias = TOKEN_CARACTER;
+                    strcpy(dados.value, "CARACTER");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -437,7 +458,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 19: // TOKEN_ESCREVA
-                    printf("TOKEN_ESCREVA\n");
+                    //printf("TOKEN_ESCREVA\n");
+                    dados.alias = TOKEN_ESCREVA;
+                    strcpy(dados.value, "ESCREVA");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -504,7 +530,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 26: // TOKEN_ENQUANTO
-                    printf("TOKEN_ENQUANTO\n");
+                    //printf("TOKEN_ENQUANTO\n");
+                    dados.alias = TOKEN_ENQUANTO;
+                    strcpy(dados.value, "ENQUANTO");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -533,7 +564,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 29: // TOKEN_ENTAO
-                    printf("TOKEN_ENTAO\n");
+                    //printf("TOKEN_ENTAO\n");
+                    dados.alias = TOKEN_ENTAO;
+                    strcpy(dados.value, "ENTAO");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -568,7 +604,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 32: // TOKEN_FIM
-                    printf("TOKEN_FIM\n");
+                    //printf("TOKEN_FIM\n");
+                    dados.alias = TOKEN_FIM;
+                    strcpy(dados.value, "FIM");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -662,7 +703,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 42: // TOKEN_FIM_ENQUANTO
-                    printf("TOKEN_FIM_ENQUANTO\n");
+                    //printf("TOKEN_FIM_ENQUANTO\n");
+                    dados.alias = TOKEN_FIM_ENQUANTO;
+                    strcpy(dados.value, "FIM_ENQUANTO");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -682,7 +728,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 44: // TOKEN_FIM_SE
-                    printf("TOKEN_FIM_SE\n");
+                    //printf("TOKEN_FIM_SE\n");
+                    dados.alias = TOKEN_FIM_SE;
+                    strcpy(dados.value, "FIM_SE");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -740,7 +791,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 50: // TOKEN_INICIO
-                    printf("TOKEN_INICIO\n");
+                    //printf("TOKEN_INICIO\n");
+                    dados.alias = TOKEN_INICIO;
+                    strcpy(dados.value, "INICIO");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -787,7 +843,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 55: // TOKEN_INTEIRO
-                    printf("TOKEN_INTEIRO\n");
+                    //printf("TOKEN_INTEIRO\n");
+                    dados.alias = TOKEN_INTEIRO;
+                    strcpy(dados.value, "INTEIRO");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -874,7 +935,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 64: // TOKEN_LISTA_INT
-                    printf("TOKEN_LISTA_INT\n");
+                    //printf("TOKEN_LISTA_INT\n");
+                    dados.alias = TOKEN_LISTA_INT;
+                    strcpy(dados.value, "LISTA_INT");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -912,7 +978,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 68: // TOKEN_LISTA_REAL
-                    printf("TOKEN_LISTA_REAL\n");
+                    //printf("TOKEN_LISTA_REAL\n");
+                    dados.alias = TOKEN_LISTA_REAL;
+                    strcpy(dados.value, "LISTA_REAL");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -941,7 +1012,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 71: // TOKEN_LEIA
-                    printf("TOKEN_LEIA\n");
+                    //printf("TOKEN_LEIA\n");
+                    dados.alias = TOKEN_LEIA;
+                    strcpy(dados.value, "LEIA");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1015,7 +1091,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 79: // TOKEN_PROGRAMA
-                    printf("TOKEN_PROGRAMA\n");
+                    //printf("TOKEN_PROGRAMA\n");
+                    dados.alias = TOKEN_PROGRAMA;
+                    strcpy(dados.value, "PROGRAMA");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1053,7 +1134,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 83: // TOKEN_REAL
-                    printf("TOKEN_REAL\n");
+                    //printf("TOKEN_REAL\n");
+                    dados.alias = TOKEN_REAL;
+                    strcpy(dados.value, "REAL");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1073,7 +1159,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 85: // TOKEN_SE
-                    printf("TOKEN_SE\n");
+                    //printf("TOKEN_SE\n");
+                    dados.alias = TOKEN_SE;
+                    strcpy(dados.value, "SE");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1087,15 +1178,33 @@ bool varredura(){
                          estado = 86;
                     }else if(c == '\''){
                          estado = 87;
+
+                         auxBffr[j] = c;
+
+                         j++;
+
+                         break;
                     }else{
                          estado = -1;
                     }
+
+                    // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
+                    auxBffr[j] = buffer[i - 1];
+                    j++;
 
                     break;
 
                // ESTADO FINAL
                case 87: // TOKEN_STRING
-                    printf("TOKEN_STRING\n");
+                    //printf("TOKEN_STRING\n");
+                    dados.alias = TOKEN_STRING;
+                    auxBffr[j] = '\0';
+                    strcpy(dados.value, auxBffr);
+                    j = 0;
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
+
 
                     estado = 0;
 
@@ -1106,7 +1215,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 88: // TOKEN_VIRGULA
-                    printf("TOKEN_VIRGULA\n");
+                    //printf("TOKEN_VIRGULA\n");
+                    dados.alias = TOKEN_VIRGULA;
+                    strcpy(dados.value, ",");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1117,7 +1231,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 89: // TOKEN_ABRE_COLCHETE
-                    printf("TOKEN_ABRE_COLCHETE\n");
+                    //printf("TOKEN_ABRE_COLCHETE\n");
+                    dados.alias = TOKEN_ABRE_COLCHETE;
+                    strcpy(dados.value, "[");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1128,7 +1247,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 90: // TOKEN_FECHA_COLCHETE
-                    printf("TOKEN_FECHA_COLCHETE\n");
+                    //printf("TOKEN_FECHA_COLCHETE\n");
+                    dados.alias = TOKEN_FECHA_COLCHETE;
+                    strcpy(dados.value, "]");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1154,7 +1278,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 92: // TOKEN_PONTO
-                    printf("TOKEN_PONTO\n");
+                    //printf("TOKEN_PONTO\n");
+                    dados.alias = TOKEN_PONTO;
+                    strcpy(dados.value, ".");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1174,7 +1303,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 94: // TOKEN_MAIOR
-                    printf("TOKEN_MAIOR\n");
+                    //printf("TOKEN_MAIOR\n");
+                    dados.alias = TOKEN_MAIOR;
+                    strcpy(dados.value, ".M.");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1194,7 +1328,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 96: // TOKEN_MENOR
-                    printf("TOKEN_MENOR\n");
+                    //printf("TOKEN_MENOR\n");
+                    dados.alias = TOKEN_MENOR;
+                    strcpy(dados.value, ".m.");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
                     
@@ -1207,14 +1346,19 @@ bool varredura(){
                     if(c == '.'){
                          estado = 98;
                     }else{
-                         return -1;
+                         estado = -1;
                     }
 
                     break;
 
                // ESTADO FINAL
                case 98: // TOKEN_IGUAL
-                    printf("TOKEN_IGUAL\n");
+                    //printf("TOKEN_IGUAL\n");
+                    dados.alias = TOKEN_IGUAL;
+                    strcpy(dados.value, ".I.");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1225,7 +1369,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 99: // TOKEN_SOMA
-                    printf("TOKEN_SOMA\n");
+                    //printf("TOKEN_SOMA\n");
+                    dados.alias = TOKEN_SOMA;
+                    strcpy(dados.value, "+");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1236,7 +1385,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 100: // TOKEN_SUBTRACAO
-                    printf("TOKEN_SUBTRACAO\n");
+                    //printf("TOKEN_SUBTRACAO\n");
+                    dados.alias = TOKEN_SUBTRACAO;
+                    strcpy(dados.value, "-");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1256,7 +1410,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 102: // TOKEN_ATRIBUICAO
-                    printf("TOKEN_ATRIBUICAO\n");
+                    //printf("TOKEN_ATRIBUICAO\n");
+                    dados.alias = TOKEN_ATRIBUICAO;
+                    strcpy(dados.value, ":=");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1267,7 +1426,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 103: // TOKEN_MULTIPLICACAO
-                    printf("TOKEN_MULTIPLICACAO\n");
+                    //printf("TOKEN_MULTIPLICACAO\n");
+                    dados.alias = TOKEN_MULTIPLICACAO;
+                    strcpy(dados.value, "*");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1278,7 +1442,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 104: // // TOKEN_DIVISAO
-                    printf("TOKEN_DIVISAO\n");
+                    //printf("TOKEN_DIVISAO\n");
+                    dados.alias = TOKEN_DIVISAO;
+                    strcpy(dados.value, "/");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1299,16 +1468,43 @@ bool varredura(){
                     }else if((c == '[') || (c == ']')){ // em caso de array
                          estado = 106;
 
+                         // espia o caractere antes de retroceder
+                         auxBffr[j] = buffer[i - 1];
+                         j++;
+
                          i--; // retrocede
+
+                         break;
+                    }else if(c == ','){ // em caso de vários identificadores
+                         estado = 106;
+
+                         // espia o caractere antes de retroceder
+                         auxBffr[j] = buffer[i - 1];
+                         j++;
+
+                         i--; // retrocede
+
+                         break;
                     }else{
                          estado = 106;
                     }
+
+                    // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
+                    auxBffr[j] = buffer[i - 1];
+                    j++;
 
                     break;
 
                // ESTADO FINAL
                case 106: // TOKEN_IDENTIFICADOR
-                    printf("TOKEN_IDENTIFICADOR\n");
+                    //printf("TOKEN_IDENTIFICADOR\n");
+                    dados.alias = TOKEN_IDENTIFICADOR;
+                    auxBffr[j] = '\0';
+                    strcpy(dados.value, auxBffr);
+                    j = 0;
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1323,16 +1519,33 @@ bool varredura(){
                     }else if((c == '[') || (c == ']')){ // em caso de array
                          estado = 108;
 
+                         // espia o caractere antes de retroceder
+                         auxBffr[j] = buffer[i - 1];
+                         j++;
+
                          i--; // retrocede
+
+                         break;
                     }else{
                          estado = 108;
                     }
+
+                    // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
+                    auxBffr[j] = buffer[i - 1];
+                    j++;
 
                     break;
 
                // ESTADO FINAL
                case 108: // TOKEN_NUMERO
-                    printf("TOKEN_NUMERO\n");
+                    //printf("TOKEN_NUMERO\n");
+                    dados.alias = TOKEN_NUMERO;
+                    auxBffr[j] = '\0';
+                    strcpy(dados.value, auxBffr);
+                    j = 0;
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1343,7 +1556,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 109: // TOKEN_ABRE_PARENTESES
-                    printf("TOKEN_ABRE_PARENTESES\n");
+                    //printf("TOKEN_ABRE_PARENTESES\n");
+                    dados.alias = TOKEN_ABRE_PARENTESES;
+                    strcpy(dados.value, "(");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1354,7 +1572,12 @@ bool varredura(){
 
                // ESTADO FINAL
                case 110: // TOKEN_FECHA_PARENTESES
-                    printf("TOKEN_FECHA_PARENTESES\n");
+                    //printf("TOKEN_FECHA_PARENTESES\n");
+                    dados.alias = TOKEN_FECHA_PARENTESES;
+                    strcpy(dados.value, ")");
+
+                    insereNo(tokens, chave, &dados, "back");
+                    chave++;
 
                     estado = 0;
 
@@ -1399,17 +1622,11 @@ bool varredura(){
           i++;
      }
 
-     return !flagErro;
-}
-
-bool analiseLexica(){
-     if(varredura()){
-          printf("Varredura bem-sucedida!\n");
+     if(!flagErro){
+          printf("Análise Léxica bem-sucedida!\n");
      }else{
-          fprintf(stderr, "Varredura encerrou com erro(s).\n");
-
-          return false;
+          fprintf(stderr, "Análise Léxica encerrou com erro(s).\n");
      }
 
-     return true;
+     return tokens;
 }

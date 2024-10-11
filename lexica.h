@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+/*
 #define TOKEN_PROGRAMA         "PROGRAMA"     // Início do programa
 #define TOKEN_IDENTIFICADOR    "id"           // Identificador
 #define TOKEN_INICIO           "INICIO"       // Início do bloco de comandos
@@ -36,16 +37,13 @@
 #define TOKEN_PONTO            "."            // Ponto
 #define TOKEN_ABRE_PARENTESES  "("            // Abre parênteses
 #define TOKEN_FECHA_PARENTESES ")"            // Fecha parênteses
+*/
 
-bool analiseLexica();
+Lista *analiseLexica();
 // GATILHO PARA A VARREDURA E CLASSIFICAÇÃO DO BUFFER DE ENTRADA
 //
-// Retorna verdadeira se sucedeu e falso se não.
-
-bool varredura();
-// FAZ A VARREDURA DO BUFFER DE ENTRADA
-//
-// Retorna verdadeira se sucedeu e falso se não.
+// Retorna o ponteiro para a lista de tokens
+// (se nulo, não havia tokens válidos na entrada)
 
 bool verificaFinal(int estado);
 // VERIFICA SE O ESTADO É FINAL
