@@ -1296,13 +1296,10 @@ bool varredura(){
                       ) // letra(letra|digito)*
                     {
                          estado = 105;
-                    }else if(
-                             (c == '[') ||
-                             ((c >= '0') && (c <= '9')) ||
-                             (c == ']')
-                            ) // caso for array
-                    {
-                         estado = 105;
+                    }else if((c == '[') || (c == ']')){ // em caso de array
+                         estado = 106;
+
+                         i--; // retrocede
                     }else{
                          estado = 106;
                     }
@@ -1323,6 +1320,10 @@ bool varredura(){
                case 107: // {num}
                     if((c >= '0') && (c <= '9')){ // digito*
                          estado = 107;
+                    }else if((c == '[') || (c == ']')){ // em caso de array
+                         estado = 108;
+
+                         i--; // retrocede
                     }else{
                          estado = 108;
                     }
