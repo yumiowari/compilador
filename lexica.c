@@ -28,13 +28,14 @@
 
           CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO |
                        SE EXPR_REL ENTAO CMD FIM_SE |
-                       SEQ_ID := EXPR |
                        ESCREVA_CMD |
-                       LEIA SEQ_ID;
+                       LEIA SEQ_ID |
+                       SEQ_ID := EXPR;
 
-          ESCREVA_CMD -> ESCREVA SEQ_ID ESCREVA_REC |
-                         ESCREVA str ESCREVA_REC;
-          ESCREVA_REC -> ',' SEQ_ID ESCREVA_REC | ε;
+          ESCREVA_CMD -> ESCREVA str ESCREVA_REC |
+                         ESCREVA SEQ_ID ESCREVA_REC;
+                         
+          ESCREVA_REC -> ',' ESCREVA_CMD ESCREVA_REC | ε;
 
           EXPR_REL -> EXPR OP_REL EXPR;
           OP_REL -> .M. | .m. | .I.;

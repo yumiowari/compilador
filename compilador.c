@@ -9,6 +9,7 @@ int main(){
      Lista *tokens = NULL;
 
      tokens = analiseLexica();
+     if(tokens == NULL)exit(EXIT_FAILURE);
 
      if(tamanhoLista(tokens) > 0){
           Info *token;
@@ -25,6 +26,8 @@ int main(){
      }else{
           exit(EXIT_FAILURE);
      }
+
+     liberaLista(lista);
 
      exit(EXIT_SUCCESS);
 }
