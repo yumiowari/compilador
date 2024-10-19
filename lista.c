@@ -14,7 +14,7 @@
 
 struct no{
     int chave;
-    struct info *dados;
+    struct token *dados;
     struct no *prox;
 };
 
@@ -35,11 +35,11 @@ Lista *fazLista(){
 }
 
 // Função para alocar o ponteiro para o nó
-No *fazNo(int chave, Info *dados){
+No *fazNo(int chave, Token *dados){
     No *novoNo = (No*) malloc(sizeof(No));
     if(novoNo == NULL)return NULL;
 
-    Info *novoDado = (Info*) malloc(sizeof(Info));
+    Token *novoDado = (Token*) malloc(sizeof(Token));
     if(novoDado == NULL){
         free(novoNo);
 
@@ -55,7 +55,7 @@ No *fazNo(int chave, Info *dados){
 }
 
 // Função para inserir um novo nó na lista
-int insereNo(Lista *lista, int chave, Info *dados, char *modo){
+int insereNo(Lista *lista, int chave, Token *dados, char *modo){
     if(lista == NULL)return 1;
 
     No *novoNo = fazNo(chave, dados);
@@ -137,7 +137,7 @@ int removeNo(Lista *lista, int chave){
 }
 
 // Função para consultar o conteúdo de um nó da lista a partir da chave
-Info *consultaNo(Lista *lista, int chave){
+Token *consultaNo(Lista *lista, int chave){
     if(lista == NULL)return NULL;
 
     if(lista->qtd > 0){

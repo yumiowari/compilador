@@ -1,45 +1,49 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // exit()
 #include <stdbool.h>
 
 #include "lista.h"
 
 #include "sintatica.h"
 
+Token *token;
+Lista *tokens;
 int chave = 1;
 
-Info *token;
-Lista *lista;
+void analiseSintatica(Lista *ptr_tokens){ // S -> PGRM
+    tokens = ptr_tokens;
+    if(tokens == NULL){
+        fprintf(stderr, "Erro: a lista de tokens nunca foi alocada.\n");
+        
+        exit(EXIT_FAILURE);
+    }
 
-bool analiseSintatica(Lista *ptr){ // S -> PGRM;
-    lista = ptr;
-    
     PGRM();
 }
 
+// ESTADOS //
+
 void PGRM(){ // PGRM -> PROGRAMA id INICIO DECL CMD FIM;
-    token = proxToken();
+    proxToken();
 
     if(token->alias == TOKEN_PROGRAMA){
-        token = proxToken();
+        proxToken();
 
         if(token->alias == TOKEN_IDENTIFICADOR){
-            token = proxToken();
+            proxToken();
 
             if(token->alias == TOKEN_INICIO){
-                token = proxToken();
-
                 DECL();
                 CMD();
 
+                proxToken();
+
                 if(token->alias == TOKEN_FIM){
-                    printf("Reconheceu!\n");
-                }else{
-                    printf("Não reconheceu.\n")
-                }
-            }else falha();
-        }else falha();
-    }else falha();
+                    printf("Análise Sintática concluída com sucesso!\n");
+                }else falha(token->value, "FIM");
+            }else falha(token->value, "INICIO");
+        }else falha(token->value, "id");
+    }else falha(token->value, "PROGRAMA");
 }
 
 void DECL(){ // DECL -> TIPO SEQ_ID DECL_REC;
@@ -48,74 +52,76 @@ void DECL(){ // DECL -> TIPO SEQ_ID DECL_REC;
     DECL_REC();
 }
 
-void DECL_REC(){ // DECL_REC -> DECL | ε;
+void DECL_REC(){ // DECL_REC -> DECL DECL_REC |
+                 //             ε;
     DECL();
+    DECL_REC();
 }
 
-void TIPO(){ // TIPO -> INTEIRO | REAL | CARACTER | CADEIA | LISTA_INT | LISTA_REAL;
-    token = proxToken();
+void TIPO(){ // TIPO -> INTEIRO   |
+             //         REAL      |
+             //         CARACTER  |
+             //         CADEIA    |
+             //         LISTA_INT |
+             //         LISTA_REAL;
+    proxToken();
 
-    if(token.alias == TOKEN_INTEIRO){
-
-    }else if(token.alias == TOKEN_REAL){
-
-    }else if(token.alias == TOKEN_CARACTER){
-
-    }else if(token.alias == TOKEN_CADEIA){
-
-    }else if(token.alias == TOKEN_LISTA_INT){
-
-    }else if(token.alias == TOKEN_REAL){
-
-    }else falha();
+    if(
+        token->alias == TOKEN_INTEIRO    || // TIPO -> INTEIRO;
+        token->alias == TOKEN_REAL       || // TIPO -> REAL;
+        token->alias == TOKEN_CARACTER   || // TIPO -> CARACTER;
+        token->alias == TOKEN_CADEIA     || // TIPO -> CADEIA;
+        token->alias == TOKEN_LISTA_INT  || // TIPO -> LISTA_INT;
+        token->alias == TOKEN_LISTA_REAL    // TIPO-> LISTA_REAL;
+    ){}else falha(token->value, "TIPO");
 }
 
 void SEQ_ID(){ // SEQ_ID -> id SEQ_ID_REC;
-    token = proxToken();
+    proxToken();
 
-    if(token.alias == TOKEN_IDENTIFICADOR){
+    if(token->alias == TOKEN_IDENTIFICADOR){
         SEQ_ID_REC();
-    }else falha();
+    }else falha(token->value, "id");
 }
 
-void SEQ_ID_REC(){ // SEQ_ID_REC -> ',' SEQ_ID | ε;
-    token = proxToken();
+void SEQ_ID_REC(){ // SEQ_ID_REC -> ',' SEQ_ID SEQ_ID_REC |
+                   //               ε;
+    proxToken();
 
-    if(token.alias == TOKEN_VIRGULA){
+    if(token->alias == TOKEN_VIRGULA){
         SEQ_ID();
-    }else{
-        // SEQ_ID_REC -> ε;
-    }
+        SEQ_ID_REC();
+    }else{} // SEQ_ID_REC -> ε;
 }
 
 void SEQ_ID_MUL(){ // SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC;
-    token = proxToken();
+    proxToken();
 
-    if(token.alias == TOKEN_IDENTIFICADOR){
-        token = proxToken();
+    if(token->alias == TOKEN_IDENTIFICADOR){
+        proxToken();
 
-        if(token.alias == TOKEN_ABRE_COLCHETE){
-            token = proxToken();
+        if(token->alias == TOKEN_ABRE_COLCHETE){
+            proxToken();
 
-            if(token.alias == TOKEN_NUMERO){
-                token = proxToken();
+            if(token->alias == TOKEN_NUMERO){
+                proxToken();
 
-                if(token.alias == TOKEN_FECHA_COLCHETE){
+                if(token->alias == TOKEN_FECHA_COLCHETE){
                     SEQ_ID_MUL_REC();
-                }else falha();
-            }else falha();
-        }else falha();
-    }else falha();
+                }else falha(token->value, "]");
+            }else falha(token->value, "num");
+        }else falha(token->value, "[");
+    }else falha(token->value, "id");
 }
 
-void SEQ_ID_MUL_REC(){ // SEQ_ID_MUL_REC -> ',' SEQ_ID_MUL | ε;
-    token = proxToken();
+void SEQ_ID_MUL_REC(){ // SEQ_ID_MUL_REC -> ',' SEQ_ID_MUL SEQ_ID_MUL_REC |
+                       // ε;
+    proxToken();
 
-    if(token.alias == TOKEN_VIRGULA){
+    if(token->alias == TOKEN_VIRGULA){
         SEQ_ID_MUL();
-    }else{
-        // SEQ_ID_MUL_REC -> ε;
-    }
+        SEQ_ID_MUL_REC();
+    }else{} // SEQ_ID_REC -> ε;
 }
 
 void CMD(){ // CMD -> CMD_UNICO CMD_REC;
@@ -123,94 +129,181 @@ void CMD(){ // CMD -> CMD_UNICO CMD_REC;
     CMD_REC();
 }
 
-void CMD_REC(){ // CMD_REC -> CMD CMD_REC | ε;
+void CMD_REC(){ // CMD_REC -> CMD CMD_REC |
+                // ε;
     CMD();
     CMD_REC();
 }
 
-void CMD_UNICO(){
-    token = proxToken();
+void CMD_UNICO(){ // CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO |
+                  //              SE EXPR_REL ENTAO CMD FIM_SE             |
+                  //              ESCREVA str ESCREVA_REC                  |
+                  //              ESCREVA SEQ_ID ESCREVA_REC               |
+                  //              LEIA SEQ_ID                              |
+                  //              SEQ_ID := EXPR;
+    proxToken();
 
-    if(token.alias == TOKEN_ENQUANTO){ // CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO;
+    if(token->alias == TOKEN_ENQUANTO){ // CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO;
         EXPR_REL();
 
-        token = proxToken();
+        proxToken();
 
-        if(token.alias == TOKEN_ENTAO){
+        if(token->alias == TOKEN_ENTAO){
             CMD();
 
-            token = proxToken();
-
-            if(token.alias == TOKEN_FIM_ENQUANTO){
-
-            }else falha();
-        }else falha();
-    }else if(token.alias == TOKEN_SE){ // CMD_UNICO -> SE EXPR_REL ENTAO CMD FIM_SE;
+            if(token->alias == TOKEN_FIM_ENQUANTO){}else falha(token->value, "FIM_ENQUANTO");
+        }else falha(token->value, "ENTAO");
+    }else if(token ->alias == TOKEN_SE){ // CMD_UNICO -> SE EXPR_REL ENTAO CMD FIM_SE;
         EXPR_REL();
 
-        token = proxToken();
+        proxToken();
 
-        if(token.alias == TOKEN_ENTAO){
+        if(token->alias == TOKEN_ENTAO){
             CMD();
 
-            token = proxToken();
+            if(token->alias == TOKEN_FIM_SE){}else falha(token->value, "FIM_SE");
+        }else falha(token->value, "ENTAO");
+    }else if(token->alias == TOKEN_ESCREVA){
+        proxToken();
 
-            if(token.alias == TOKEN_FIM_SE){
-
-            }else falha();
-        }else falha();
-    }else if(token.alias == TOKEN_ESCREVA){ // CMD_UNICO -> ESCREVA_CMD;
-        ESCREVA_CMD();
-    }else if(token.alias == TOKEN_LEIA){ // CMD_UNICO -> LEIA SEQ_ID;
+        if(token->alias == TOKEN_STRING){ // CMD_UNICO -> ESCREVA str ESCREVA_REC;
+            ESCREVA_REC();
+        }else{ // CMD_UNICO -> ESCREVA SEQ_ID ESCREVA_REC;
+            SEQ_ID();
+        }
+    }else if(token->alias == TOKEN_LEIA){ // CMD_UNICO -> LEIA SEQ_ID;
         SEQ_ID();
-    }else{ // CMD_UNICO -> SEQ_ID := EXPR;
+    }else{
         SEQ_ID();
 
-        token = proxToken();
+        proxToken();
 
-        if(token.alias == TOKEN_ATRIBUICAO){
+        if(token->alias == TOKEN_ATRIBUICAO){
             EXPR();
-        }else falha();
+        }else falha(token->value, ":=");
     }
 }
 
-void ESCREVA_CMD(){
-    token = proxToken();
+void ESCREVA_REC(){ // ESCREVA_REC -> ',' str ESCREVA_REC    |
+                    //                ',' SEQ_ID ESCREVA_REC |
+                    //                ε;              ε;
+    proxToken();
 
-    if(token.alias == TOKEN_ESCREVA){
-        token = proxToken();
+    if(token->alias == TOKEN_VIRGULA){
+        proxToken();
 
-        if(token.alias == TOKEN_STRING){ // ESCREVA_CMD -> ESCREVA str ESCREVA_REC;
+        if(token->alias == TOKEN_STRING){
             ESCREVA_REC();
-        }else{ // ESCREVA_CMD -> ESCREVA SEQ_ID ESCREVA_REC;
+        }else{
             SEQ_ID();
             ESCREVA_REC();
         }
-    }else falha();
+    }else{} // ESCREVA_REC -> ε;
 }
 
-void void ESCREVA_REC(){ // ESCREVA_REC -> ',' SEQ_ID ESCREVA_REC | ε;
-    token = proxToken();
+void EXPR_REL(){ // EXPR_REL -> EXPR OP_REL EXPR;
+    EXPR();
+    OP_REL();
+    EXPR();
+}
 
-    if(token.alias == TOKEN_VIRGULA){
-        ESCREVA_CMD();
-        ESCREVA_REC();
-    }else{
-        // ESCREVA_REC -> ε
+void OP_REL(){ // OP_REL -> .M. |
+               //           .m. |
+               //           .I.;
+    proxToken();
+
+    if(
+        token->alias == TOKEN_MAIOR || // OP_REL -> .M.;
+        token->alias == TOKEN_MENOR || // OP_REL -> .m.;
+        token->alias == TOKEN_IGUAL    // OP_REL -> .I.;
+    ){}else falha(token->value, "OP_REL");
+}
+
+void EXPR(){ // EXPR -> TERMO EXPR_REC;
+    TERMO();
+    EXPR_REC();
+}
+
+void EXPR_REC(){ // EXPR_REC -> '+' TERMO EXPR_REC |
+                 //             '-' TERMO EXPR_REC |
+                 //             ε;
+    proxToken();
+
+    if(
+        token->alias == TOKEN_SOMA      || // EXPR_REC -> '+' TERMO EXPR_REC;
+        token->alias == TOKEN_SUBTRACAO    // EXPR_REC -> '-' TERMO EXPR_REC;
+    ){
+        TERMO();
+        EXPR_REC();
+    }else{} // EXPR_REC -> ε;
+}
+
+void TERMO(){ // TERMO -> FATOR TERMO_REC;
+    FATOR();
+    TERMO_REC();
+}
+
+void TERMO_REC(){ // TERMO_REC -> '*' FATOR TERMO_REC |
+                  //              '/' FATOR TERMO_REC |
+                  //              ε;
+    proxToken();
+
+    if(
+        token->alias == TOKEN_MULTIPLICACAO || // TERMO_REC -> '*' FATOR TERMO_REC;
+        token->alias == TOKEN_DIVISAO          // TERMO_REC -> '/' FATOR TERMO_REC;
+    ){
+        FATOR();
+        TERMO_REC();
+    }else{} // TERMO_REC -> ε;
+}
+
+void FATOR(){ // FATOR -> '(' EXPR ')'  |
+              //          FATOR '.' num |
+              //          num           |
+              //          id;
+    proxToken();
+
+    if(token->alias == TOKEN_ABRE_PARENTESES){
+        EXPR();
+
+        proxToken();
+
+        if(token->alias == TOKEN_FECHA_PARENTESES){}else falha(token->value, ")");
+    }else if(
+        token->alias == TOKEN_NUMERO        || // FATOR -> num;
+        token->alias == TOKEN_IDENTIFICADOR    // FATOR -> id;
+    ){}else{ // FATOR -> FATOR '.' num;
+        FATOR();
+
+        proxToken();
+
+        if(token->alias == TOKEN_PONTO){
+            proxToken();
+
+            if(token->alias == TOKEN_NUMERO){}else falha(token->value, "num");
+        }else falha(token->value, ".");
     }
 }
 
-Info *proxToken(){
-    Info *ptr; // ponteiro para o token
+/////////////
 
-    ptr = consultaNo(lista, chave);
-    if(ptr == NULL)return NULL;
+void proxToken(){
+    Token *aux;
+
+    aux = consultaNo(tokens, chave);
+    if(aux != NULL){
+        token = aux;
+
+        printf("%d : %s\n", token->alias, token->value);
+
+        chave++;
+    }else{
+        fprintf(stderr, "Erro: alcançou o final da lista de tokens.\n");
     
-    chave++;
-
-    return ptr;
+        exit(EXIT_FAILURE);
+    }
 }
 
-void falha(){
-    printf("Falhou!\n");
+void falha(char *obtido, char *esperado){
+    fprintf(stderr, "Obtido: %s; Esperado: %s.\n", obtido, esperado);
 }

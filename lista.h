@@ -45,16 +45,10 @@ typedef enum{
     TOKEN_FECHA_PARENTESES
 }TokenAlias;
 
-typedef struct info{
+typedef struct token{
     TokenAlias alias;
     char value[1024]; // tamanho máximo do buffer: 1 KB
-
-    // Preencha o tipo com as informações desejadas...
-}Info;
-/*
-    Nota: ao preencher o tipo de informações, é necessário alterar
-          a função imprimeLista() para imprimir todos os dados.
-*/
+}Token;
 
 typedef struct no No;
 typedef struct lista Lista;
@@ -65,13 +59,13 @@ Lista *fazLista();
 // Retorno:
 // - Ponteiro do tipo Lista (se nulo, não havia memória RAM).
 
-No *fazNo(int chave, Info *dados);
+No *fazNo(int chave, Token *dados);
 // Função para alocar o ponteiro para o nó
 //
 // Retorno:
 // - Ponteiro do tipo Nó (se nulo, não havia memória RAM).
 
-int insereNo(Lista *lista, int chave, Info *dados, char *modo);
+int insereNo(Lista *lista, int chave, Token *dados, char *modo);
 // Função para inserir um novo nó na lista
 //
 // Modos:
@@ -92,7 +86,7 @@ int removeNo(Lista *lista, int chave);
 // - 2: a lista está vazia;
 // - 3: o nó não está na lista.
 
-Info *consultaNo(Lista *lista, int chave);
+Token *consultaNo(Lista *lista, int chave);
 // Função para consultar o conteúdo de um nó da lista a partir da chave
 //
 // Retornos:

@@ -14,31 +14,40 @@
      P = {PGRM -> PROGRAMA id INICIO DECL CMD FIM;
 
           DECL -> TIPO SEQ_ID DECL_REC;
-          DECL_REC -> DECL | ε;
-          TIPO -> INTEIRO | REAL | CARACTER | CADEIA | LISTA_INT | LISTA_REAL;
+          DECL_REC -> DECL DECL_REC | 
+                      ε;
+          TIPO -> INTEIRO   |
+                  REAL      |
+                  CARACTER  |
+                  CADEIA    |
+                  LISTA_INT |
+                  LISTA_REAL;
 
           SEQ_ID -> id SEQ_ID_REC;
-          SEQ_ID_REC -> ',' SEQ_ID | ε;
+          SEQ_ID_REC -> ',' SEQ_ID SEQ_ID_REC |
+                        ε;
 
           SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC;
-          SEQ_ID_MUL_REC -> ',' SEQ_ID_MUL | ε;
+          SEQ_ID_MUL_REC -> ',' SEQ_ID_MUL SEQ_ID_MUL_REC |
+                            ε;
 
           CMD -> CMD_UNICO CMD_REC;
-          CMD_REC -> CMD CMD_REC | ε;
-
+          CMD_REC -> CMD CMD_REC |
+                     ε;
           CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO |
-                       SE EXPR_REL ENTAO CMD FIM_SE |
-                       ESCREVA_CMD |
-                       LEIA SEQ_ID |
+                       SE EXPR_REL ENTAO CMD FIM_SE             |
+                       ESCREVA str ESCREVA_REC                  |
+                       ESCREVA SEQ_ID ESCREVA_REC               |
+                       LEIA SEQ_ID                              |
                        SEQ_ID := EXPR;
-
-          ESCREVA_CMD -> ESCREVA str ESCREVA_REC |
-                         ESCREVA SEQ_ID ESCREVA_REC;
                          
-          ESCREVA_REC -> ',' ESCREVA_CMD ESCREVA_REC | ε;
+          ESCREVA_REC -> ',' ESCREVA_CMD ESCREVA_REC |
+                         ε;
 
           EXPR_REL -> EXPR OP_REL EXPR;
-          OP_REL -> .M. | .m. | .I.;
+          OP_REL -> .M. |
+                    .m. |
+                    .I.;
 
           EXPR -> TERMO EXPR_REC;
           EXPR_REC -> '+' TERMO EXPR_REC |
@@ -189,7 +198,7 @@ Lista *analiseLexica(){
      int j = 0; // índice no buffer auxiliar
      Lista *tokens = NULL;
      int chave = 1; // 1º, 2º, 3º, ..., nº token
-     Info dados;
+     Token dados;
 
      tokens = fazLista();
      if(tokens == NULL)return NULL;
