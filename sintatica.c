@@ -15,13 +15,13 @@
                  TIPO_MUL SEQ_ID_MUL DECL |
                  ε;
 
-         TIPO -> INTEIRO | REAL | CARACTER | CADEIA;
+         TIPO -> INTEIRO | REAL | CARACTER;
 
          SEQ_ID -> id SEQ_ID_REC;
 
          SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
 
-         TIPO_MUL -> LISTA_INT | LISTA_REAL;
+         TIPO_MUL -> CADEIA | LISTA_INT | LISTA_REAL;
 
          SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC |
                        id '[' id ']' SEQ_ID_MUL_REC;
@@ -128,10 +128,9 @@ void DECL(){ // DECL -> TIPO SEQ_ID DECL         |
              //         ε;
     proxToken("DECL", "INTEIRO, REAL, CARACTER, CADEIA, LISTA_INT ou LISTA_REAL"); // espia o próximo token
     if( // DECL -> TIPO SEQ_ID DECL;
-        token->alias == TOKEN_INTEIRO  ||
-        token->alias == TOKEN_REAL     ||
-        token->alias == TOKEN_CARACTER ||
-        token->alias == TOKEN_CADEIA
+        token->alias == TOKEN_INTEIRO ||
+        token->alias == TOKEN_REAL    ||
+        token->alias == TOKEN_CARACTER 
     ){
         if(debug)printf("Retrocedeu...\n");
         chave--; // retrocede o token
@@ -140,6 +139,7 @@ void DECL(){ // DECL -> TIPO SEQ_ID DECL         |
         SEQ_ID();
         DECL();
     }else if( // DECL -> TIPO_MUL SEQ_ID_MUL DECL;
+        token->alias == TOKEN_CADEIA    ||
         token->alias == TOKEN_LISTA_INT ||
         token->alias == TOKEN_LISTA_REAL
     ){
@@ -155,15 +155,14 @@ void DECL(){ // DECL -> TIPO SEQ_ID DECL         |
     }
 }
 
-void TIPO(){ // TIPO -> INTEIRO | REAL | CARACTER | CADEIA;
-    proxToken("TIPO", "INTEIRO, REAL, CARACTER ou CADEIA");
+void TIPO(){ // TIPO -> INTEIRO | REAL | CARACTER;
+    proxToken("TIPO", "INTEIRO, REAL ou CARACTER");
 
     if(
-        token->alias == TOKEN_INTEIRO  ||
-        token->alias == TOKEN_REAL     ||
-        token->alias == TOKEN_CARACTER ||
-        token->alias == TOKEN_CADEIA
-    ){}else falha("TIPO", "INTEIRO, REAL, CARACTER ou CADEIA", token->value);
+        token->alias == TOKEN_INTEIRO ||
+        token->alias == TOKEN_REAL    ||
+        token->alias == TOKEN_CARACTER 
+    ){}else falha("TIPO", "INTEIRO, REAL ou CARACTER", token->value);
 }
 
 void SEQ_ID(){ // SEQ_ID -> id SEQ_ID_REC | ε;
@@ -189,13 +188,14 @@ void SEQ_ID_REC(){ // SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
     }
 }
 
-void TIPO_MUL(){ // TIPO_MUL -> LISTA_INT | LISTA_REAL;
-    proxToken("TIPO_MUL", "LISTA_INT ou LISTA_REAL");
+void TIPO_MUL(){ // TIPO_MUL -> CADEIA | LISTA_INT | LISTA_REAL;
+    proxToken("TIPO_MUL", "CADEIA, LISTA_INT ou LISTA_REAL");
 
     if(
+        token->alias == TOKEN_CADEIA    ||
         token->alias == TOKEN_LISTA_INT ||
-        token->alias == TOKEN_LISTA_REAL
-    ){}else falha("TIPO_MUL", "LISTA_INT ou LISTA_REAL", token->value);
+        token->alias == TOKEN_LISTA_REAL 
+    ){}else falha("TIPO_MUL", "CADEIA, LISTA_INT ou LISTA_REAL", token->value);
 }
 
 void SEQ_ID_MUL(){ // SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC |

@@ -5,7 +5,7 @@
 #include "lista.h"
 
 #include "lexica.h" // analiseLexica()
-#include "sintatica.h" // analiseSintatica
+#include "sintatica.h" // analiseSintatica()
 
 int main(){
      Lista *tokens = NULL;

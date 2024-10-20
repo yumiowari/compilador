@@ -211,7 +211,7 @@ Lista *analiseLexica(){
                c = buffer[i];
 
                if(c != '\0'){
-                    //printf("c = %c - estado = %d\n", c, estado);
+                    printf("c = %c - estado = %d\n", c, estado);
                }else{
                     if(verificaFinal(estado)){ // caso ainda houver algum token a ser classificado
                          flag = true;
@@ -1190,12 +1190,6 @@ Lista *analiseLexica(){
                          estado = 86;
                     }else if(c == '\''){
                          estado = 87;
-
-                         auxBffr[j] = c;
-
-                         j++;
-
-                         break;
                     }else{
                          estado = -1;
                     }
@@ -1210,6 +1204,11 @@ Lista *analiseLexica(){
                case 87: // TOKEN_STRING
                     //printf("TOKEN_STRING\n");
                     dados.alias = TOKEN_STRING;
+
+                    // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
+                    auxBffr[j] = buffer[i - 1];
+                    j++;
+
                     auxBffr[j] = '\0';
                     strcpy(dados.value, auxBffr);
                     j = 0;
@@ -1477,28 +1476,16 @@ Lista *analiseLexica(){
                       ) // letra(letra|digito)*
                     {
                          estado = 105;
-                    }else if((c == '[') || (c == ']')){ // em caso de array
-                         estado = 106;
-
-                         // espia o caractere antes de retroceder
-                         auxBffr[j] = buffer[i - 1];
-                         j++;
-
-                         i--; // retrocede
-
-                         break;
-                    }else if(c == ','){ // em caso de vários identificadores
-                         estado = 106;
-
-                         // espia o caractere antes de retroceder
-                         auxBffr[j] = buffer[i - 1];
-                         j++;
-
-                         i--; // retrocede
-
-                         break;
                     }else{
                          estado = 106;
+
+                         // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
+                         auxBffr[j] = buffer[i - 1];
+                         j++;
+
+                         i--; // retrocede
+
+                         break;
                     }
 
                     // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
@@ -1528,18 +1515,16 @@ Lista *analiseLexica(){
                case 107: // {num}
                     if((c >= '0') && (c <= '9')){ // digito*
                          estado = 107;
-                    }else if((c == '[') || (c == ']')){ // em caso de array
+                    }else{
                          estado = 108;
 
-                         // espia o caractere antes de retroceder
+                         // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
                          auxBffr[j] = buffer[i - 1];
                          j++;
 
                          i--; // retrocede
 
                          break;
-                    }else{
-                         estado = 108;
                     }
 
                     // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
