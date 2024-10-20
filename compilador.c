@@ -22,7 +22,7 @@ int main(){
                token = consultaNo(tokens, chave);
                if(token == NULL)break;
 
-               //printf("%d : %s\n", token->alias, token->value);
+               printf("(%d) %d : %s\n", chave, token->alias, token->value);
 
                chave++;
           }
@@ -32,16 +32,14 @@ int main(){
      //
 
      // Análise Sintática
-     analiseSintatica(tokens);
-
-     if(tamanhoLista(tokens) == 0){
-          liberaLista(tokens);
-
-          exit(EXIT_SUCCESS);
+     if(analiseSintatica(tokens, true) == true){
+          printf("Análise Sintática bem-sucedida!\n");
      }else{
-          liberaLista(tokens);
-
+          printf("Análise Sintática mal-sucedida!\n");
+          
           exit(EXIT_FAILURE);
      }
      //
+
+     exit(EXIT_SUCCESS);
 }

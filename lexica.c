@@ -1,79 +1,81 @@
 /*
-     Para a gramática:
+    Para a gramática:
 
-     G = (V, Σ, P, PGRM).
+    V = {PGRM, DECL, DECL_REC, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL SEQ_ID_MUL, 
+         SEQ_ID_MUL_REC, CMD, CMD_REC, CMD_UNICO, ESCREVA_REC, EXPR_REL, OP_REL,
+         EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
 
-     V = {PGRM, DECL, DECL_REC, TIPO, SEQ_ID, SEQ_ID_REC, SEQ_ID_MUL, SEQ_ID_MUL_REC,
-          CMD, CMD_REC, CMD_UNICO, ESCREVA_CMD, ESCREVA_REC, EXPR_REL, OP_REL, EXPR,
-          EXPR_REC, TERMO, TERMO_REC, FATOR}.
+    Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, CADEIA, LISTA_INT, LISTA_REAL,
+         ',', '[', num, ']', ENQUANTO, ENTAO, FIM_ENQUANTO, SE, FIM_SE, ESCREVA, str, LEIA,
+         .M., .m., .I., '+', '-', :=, '*', '/', '(', ')'}.
 
-     Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, CADEIA, LISTA_INT, LISTA_REAL,
-          ',', '[', num, ']', ENQUANTO, ENTAO, FIM_ENQUANTO, SE, FIM_SE, ESCREVA, str, LEIA,
-          .M., .I., '+', '-', ':=', '*', '/', '(', ')'}.
+    P = {PGRM -> PROGRAMA id INICIO DECL CMD FIM;
 
-     P = {PGRM -> PROGRAMA id INICIO DECL CMD FIM;
+         DECL -> TIPO SEQ_ID DECL         |
+                 TIPO_MUL SEQ_ID_MUL DECL |
+                 ε;
 
-          DECL -> TIPO SEQ_ID DECL_REC;
-          DECL_REC -> DECL DECL_REC | 
-                      ε;
-          TIPO -> INTEIRO   |
-                  REAL      |
-                  CARACTER  |
-                  CADEIA    |
-                  LISTA_INT |
-                  LISTA_REAL;
+         TIPO -> INTEIRO | REAL | CARACTER | CADEIA;
 
-          SEQ_ID -> id SEQ_ID_REC;
-          SEQ_ID_REC -> ',' SEQ_ID SEQ_ID_REC |
+         SEQ_ID -> id SEQ_ID_REC;
+
+         SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
+
+         TIPO_MUL -> LISTA_INT | LISTA_REAL;
+
+         SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC |
+                       id '[' id ']' SEQ_ID_MUL_REC;
+
+         SEQ_ID_MUL_REC -> ',' id '[' num ']' SEQ_ID_MUL_REC |
+                           ',' id '[' id ']' SEQ_ID_MUL_REC  |
+                           ε;
+
+         CMD -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD |
+                SE EXPR_REL ENTAO CMD FIM_SE CMD       |
+                ESCREVA str ESCREVA_REC CMD            |
+                ESCREVA id ESCREVA_REC CMD             |
+                ESCREVA id '[' num ']' ESCREVA_REC CMD |
+                ESCREVA id '[' id ']' ESCREVA_REC CMD  |
+                LEIA SEQ_ID CMD                        |
+                LEIA SEQ_ID_MUL CMD                    |
+                SEQ_ID := EXPR CMD                     |
+                ε;
+
+         ESCREVA_REC -> ',' str ESCREVA_REC            |
+                        ',' id ESCREVA_REC             |
+                        ',' id '[' num ']' ESCREVA_REC |
+                        ',' id '[' id ']' ESCREVA_REC  |
                         ε;
 
-          SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC;
-          SEQ_ID_MUL_REC -> ',' SEQ_ID_MUL SEQ_ID_MUL_REC |
-                            ε;
+         EXPR_REL -> EXPR OP_REL EXPR;
+        
+         OP_REL -> .M. | .m. | .I.;
 
-          CMD -> CMD_UNICO CMD_REC;
-          CMD_REC -> CMD CMD_REC |
+         EXPR -> TERMO EXPR_REC;
+
+         EXPR_REC -> '+' TERMO EXPR_REC |
+                     '-' TERMO EXPR_REC |
                      ε;
-          CMD_UNICO -> ENQUANTO EXPR_REL ENTAO CMD FIM_ENQUANTO |
-                       SE EXPR_REL ENTAO CMD FIM_SE             |
-                       ESCREVA str ESCREVA_REC                  |
-                       ESCREVA SEQ_ID ESCREVA_REC               |
-                       LEIA SEQ_ID                              |
-                       SEQ_ID := EXPR;
-                         
-          ESCREVA_REC -> ',' ESCREVA_CMD ESCREVA_REC |
-                         ε;
 
-          EXPR_REL -> EXPR OP_REL EXPR;
-          OP_REL -> .M. |
-                    .m. |
-                    .I.;
+         TERMO -> FATOR TERMO_REC;
 
-          EXPR -> TERMO EXPR_REC;
-          EXPR_REC -> '+' TERMO EXPR_REC |
-                      '-' TERMO EXPR_REC |
+         TERMO_REC -> '*' FATOR TERMO_REC |
+                      '/' FATOR TERMO_REC |
                       ε;
 
-          TERMO -> FATOR TERMO_REC;
-          TERMO_REC -> '*' FATOR TERMO_REC |
-                       '/' FATOR TERMO_REC |
-                       ε;
+         FATOR -> '(' EXPR ')'   |
+                  num            |
+                  num '.' num    |
+                  id             |
+                  id '[' num ']' |
+                  id '[' id ']';
 
-          FATOR -> '(' EXPR ')' |
-                   FATOR '.' num |
-                   num |
-                   id;
-     }.
+    id = letra(digito|letra)*
 
-     Dadas as expressões regulares:
+    str = '\''(letra|numero)*'\''
 
-     id = letra(letra|digito)*
-
-     str = '\''(letra|numero)*'\''
-
-     num = digito*
-*/          
-          
+    num = digitodigito*
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,8 +161,8 @@ bool verificaFinal(int estado){
           case 85:  return true; // TOKEN_SE
           case 87:  return true; // TOKEN_STRING
           case 88:  return true; // TOKEN_VIRGULA
-          case 89:  return true; // TOKEN_ABRE_COLCHETE
-          case 90:  return true; // TOKEN_FECHA_COLCHETE
+          case 89:  return true; // TOKEN_ABRE_COLCHETES
+          case 90:  return true; // TOKEN_FECHA_COLCHETES
           case 92:  return true; // TOKEN_PONTO
           case 94:  return true; // TOKEN_MAIOR
           case 96:  return true; // TOKEN_MENOR
@@ -1240,9 +1242,9 @@ Lista *analiseLexica(){
                //
 
                // ESTADO FINAL
-               case 89: // TOKEN_ABRE_COLCHETE
-                    //printf("TOKEN_ABRE_COLCHETE\n");
-                    dados.alias = TOKEN_ABRE_COLCHETE;
+               case 89: // TOKEN_ABRE_COLCHETES
+                    //printf("TOKEN_ABRE_COLCHETES\n");
+                    dados.alias = TOKEN_ABRE_COLCHETES;
                     strcpy(dados.value, "[");
 
                     insereNo(tokens, chave, &dados, "back");
@@ -1256,9 +1258,9 @@ Lista *analiseLexica(){
                //
 
                // ESTADO FINAL
-               case 90: // TOKEN_FECHA_COLCHETE
-                    //printf("TOKEN_FECHA_COLCHETE\n");
-                    dados.alias = TOKEN_FECHA_COLCHETE;
+               case 90: // TOKEN_FECHA_COLCHETES
+                    //printf("TOKEN_FECHA_COLCHETES\n");
+                    dados.alias = TOKEN_FECHA_COLCHETES;
                     strcpy(dados.value, "]");
 
                     insereNo(tokens, chave, &dados, "back");

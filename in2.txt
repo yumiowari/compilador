@@ -19,7 +19,7 @@ ESCREVA 'Numeros armazenados: '
 k := 1
 ENQUANTO n .M. k
 ESCREVA A[k], ' '
-k := k+1
+k := k + 1
 FIM_ENQUANTO
 ESCREVA ' soma dos valores armazenados = ' , x
 FIM
