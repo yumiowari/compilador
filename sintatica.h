@@ -48,8 +48,8 @@ void ESCREVA_REC(); // ESCREVA_REC -> ',' str ESCREVA_REC            |
                     //                ε;
 
 void EXPR_REL(); // EXPR_REL -> EXPR .M. EXPR |
-                 // EXPR .m. EXPR |
-                 // EXPR .I. EXPR;
+                 //             EXPR .m. EXPR |
+                 //             EXPR .I. EXPR;
 
 void EXPR(); // EXPR -> TERMO EXPR_REC;
 

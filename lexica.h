@@ -5,7 +5,7 @@
 
 #include "lista.h"
 
-Lista *analiseLexica();
+Lista *analiseLexica(bool debug);
 // GATILHO PARA A ANÁLISE LÉXICA DO BUFFER DE ENTRADA
 //
 // Retorna o ponteiro para a lista de tokens

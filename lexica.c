@@ -1,81 +1,24 @@
 /*
-    Para a gramática:
+    Para o alfabeto:
 
-    V = {PGRM, DECL, DECL_REC, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL SEQ_ID_MUL, 
-         SEQ_ID_MUL_REC, CMD, CMD_REC, CMD_UNICO, ESCREVA_REC, EXPR_REL, OP_REL,
-         EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
+    Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
+         LISTA_REAL, '[', num, ']', ENQUANTO, SE, ENTAO, FIM_SE, ESCREVA, str, LEIA,
+         ':=', .M., .m., .I., '+', '-', '*', '/', '(', ')', FIM_ENQUANTO}.
 
-    Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, CADEIA, LISTA_INT, LISTA_REAL,
-         ',', '[', num, ']', ENQUANTO, ENTAO, FIM_ENQUANTO, SE, FIM_SE, ESCREVA, str, LEIA,
-         .M., .m., .I., '+', '-', :=, '*', '/', '(', ')'}.
+    id = letra(dígito|letra)*
 
-    P = {PGRM -> PROGRAMA id INICIO DECL CMD FIM;
+    str = '\''(letra|dígito)*'\''
 
-         DECL -> TIPO SEQ_ID DECL         |
-                 TIPO_MUL SEQ_ID_MUL DECL |
-                 ε;
-
-         TIPO -> INTEIRO | REAL | CARACTER | CADEIA;
-
-         SEQ_ID -> id SEQ_ID_REC;
-
-         SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
-
-         TIPO_MUL -> LISTA_INT | LISTA_REAL;
-
-         SEQ_ID_MUL -> id '[' num ']' SEQ_ID_MUL_REC |
-                       id '[' id ']' SEQ_ID_MUL_REC;
-
-         SEQ_ID_MUL_REC -> ',' id '[' num ']' SEQ_ID_MUL_REC |
-                           ',' id '[' id ']' SEQ_ID_MUL_REC  |
-                           ε;
-
-         CMD -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD |
-                SE EXPR_REL ENTAO CMD FIM_SE CMD       |
-                ESCREVA str ESCREVA_REC CMD            |
-                ESCREVA id ESCREVA_REC CMD             |
-                ESCREVA id '[' num ']' ESCREVA_REC CMD |
-                ESCREVA id '[' id ']' ESCREVA_REC CMD  |
-                LEIA SEQ_ID CMD                        |
-                LEIA SEQ_ID_MUL CMD                    |
-                SEQ_ID := EXPR CMD                     |
-                ε;
-
-         ESCREVA_REC -> ',' str ESCREVA_REC            |
-                        ',' id ESCREVA_REC             |
-                        ',' id '[' num ']' ESCREVA_REC |
-                        ',' id '[' id ']' ESCREVA_REC  |
-                        ε;
-
-         EXPR_REL -> EXPR OP_REL EXPR;
-        
-         OP_REL -> .M. | .m. | .I.;
-
-         EXPR -> TERMO EXPR_REC;
-
-         EXPR_REC -> '+' TERMO EXPR_REC |
-                     '-' TERMO EXPR_REC |
-                     ε;
-
-         TERMO -> FATOR TERMO_REC;
-
-         TERMO_REC -> '*' FATOR TERMO_REC |
-                      '/' FATOR TERMO_REC |
-                      ε;
-
-         FATOR -> '(' EXPR ')'   |
-                  num            |
-                  num '.' num    |
-                  id             |
-                  id '[' num ']' |
-                  id '[' id ']';
-
-    id = letra(digito|letra)*
-
-    str = '\''(letra|numero)*'\''
-
-    num = digitodigito*
+    num = dígitodígito*
 */
+
+//
+// Implementação de Analisador Léxico
+//
+// Projeto de Compiladores, 21 de outubro de 2024.
+//
+// Rafael Renó Corrêa, 2022000403
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,109 +29,14 @@
 
 #include "lexica.h"
 
-// a leitura só termina com o fim de arquivo, ou seja, aperte Ctrl+D ;)
-char *preencheEntrada(){
-     int i = 0; // índice no buffer
-     char *buffer = NULL;
-     int buffer_size = 1024;
-     char c;
-
-     buffer = (char*) malloc(sizeof(char) * buffer_size);
-
-     while(true){
-          c = getchar();
-
-          if(c == EOF){
-               buffer[i] = '\0';
-
-               break;
-          }
-
-          // ignora comentários
-          if(c == '{'){
-               while(c != '}'){
-                    c = getchar();
-
-                    if(c == EOF){
-                         buffer[i] = '\0';
-                    
-                         break;
-                    }
-               }
-
-               c = getchar(); // consome '}'
-          }
-          //
-
-          buffer[i] = c;
-
-          i++;
-
-          // redimensiona o buffer (método rápido)
-          if(i >= buffer_size){
-               buffer_size += 1024; // aumenta o buffer em 1KB
-
-               buffer = (char*) realloc(buffer, sizeof(char) * buffer_size);
-          }
-     }
-
-     if(i > 0){
-          return buffer;
-     }else{
-          free(buffer);
-
-          return NULL;
-     }
-}
-
-bool verificaFinal(int estado){
-     switch(estado){
-          case 6:   return true; // TOKEN_CADEIA
-          case 12:  return true; // TOKEN_CARACTER
-          case 19:  return true; // TOKEN_ESCREVA
-          case 26:  return true; // TOKEN_ENQUANTO
-          case 29:  return true; // TOKEN_ENTAO
-          case 32:  return true; // TOKEN_FIM
-          case 42:  return true; // TOKEN_FIM_ENQUANTO
-          case 44:  return true; // TOKEN_FIM_SE
-          case 50:  return true; // TOKEN_INICIO
-          case 55:  return true; // TOKEN_INTEIRO
-          case 64:  return true; // TOKEN_LISTA_INT
-          case 68:  return true; // TOKEN_LISTA_REAL
-          case 71:  return true; // TOKEN_LEIA
-          case 79:  return true; // TOKEN_PROGRAMA
-          case 83:  return true; // TOKEN_REAL
-          case 85:  return true; // TOKEN_SE
-          case 87:  return true; // TOKEN_STRING
-          case 88:  return true; // TOKEN_VIRGULA
-          case 89:  return true; // TOKEN_ABRE_COLCHETES
-          case 90:  return true; // TOKEN_FECHA_COLCHETES
-          case 92:  return true; // TOKEN_PONTO
-          case 94:  return true; // TOKEN_MAIOR
-          case 96:  return true; // TOKEN_MENOR
-          case 98:  return true; // TOKEN_IGUAL
-          case 99:  return true; // TOKEN_SOMA
-          case 100: return true; // TOKEN_SUBTRACAO
-          case 102: return true; // TOKEN_ATRIBUICAO
-          case 103: return true; // TOKEN_MULTIPLICACAO
-          case 104: return true; // TOKEN_DIVISAO
-          case 106: return true; // TOKEN_IDENTIFICADOR
-          case 108: return true; // TOKEN_NUMERO
-          case 109: return true; // TOKEN_ABRE_PARENTESES
-          case 110: return true; // TOKEN_FECHA_PARENTESES
-
-          default: return false;
-     }
-}
-
-Lista *analiseLexica(){
-     bool flag = false; // condição de parada
+Lista *analiseLexica(bool debug){
+     bool encerrou = false; // condição de parada
 
      // para a varredura
-     bool flagErro = false; // para caso de erro
+     bool erro = false; // para caso de erro
      char *buffer = NULL; // buffer de entrada
      int i = 0; // índice no buffer
-     int estado;
+     int estado = 0;
      char c;
 
      buffer = preencheEntrada();
@@ -200,21 +48,21 @@ Lista *analiseLexica(){
      int j = 0; // índice no buffer auxiliar
      Lista *tokens = NULL;
      int chave = 1; // 1º, 2º, 3º, ..., nº token
-     Token dados;
+     Token token;
 
      tokens = fazLista();
      if(tokens == NULL)return NULL;
      //
      
-     while(!flag){
-          if(!flag){
+     while(!encerrou){
+          if(!encerrou){
                c = buffer[i];
 
                if(c != '\0'){
-                    printf("c = %c - estado = %d\n", c, estado);
+                    if(debug)printf("c = %c - estado = %d\n", c, estado);
                }else{
                     if(verificaFinal(estado)){ // caso ainda houver algum token a ser classificado
-                         flag = true;
+                         encerrou = true;
                     }else{
                          break;
                     }
@@ -337,11 +185,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 6: // TOKEN_CADEIA
-                    //printf("TOKEN_CADEIA\n");
-                    dados.alias = TOKEN_CADEIA;
-                    strcpy(dados.value, "CADEIA");
+                    token.alias = TOKEN_CADEIA;
+                    strcpy(token.value, "CADEIA");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -398,11 +245,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 12: // TOKEN_CARACTER
-                    //printf("TOKEN_CARACTER\n");
-                    dados.alias = TOKEN_CARACTER;
-                    strcpy(dados.value, "CARACTER");
+                    token.alias = TOKEN_CARACTER;
+                    strcpy(token.value, "CARACTER");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -470,11 +316,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 19: // TOKEN_ESCREVA
-                    //printf("TOKEN_ESCREVA\n");
-                    dados.alias = TOKEN_ESCREVA;
-                    strcpy(dados.value, "ESCREVA");
+                    token.alias = TOKEN_ESCREVA;
+                    strcpy(token.value, "ESCREVA");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -542,11 +387,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 26: // TOKEN_ENQUANTO
-                    //printf("TOKEN_ENQUANTO\n");
-                    dados.alias = TOKEN_ENQUANTO;
-                    strcpy(dados.value, "ENQUANTO");
+                    token.alias = TOKEN_ENQUANTO;
+                    strcpy(token.value, "ENQUANTO");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -576,11 +420,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 29: // TOKEN_ENTAO
-                    //printf("TOKEN_ENTAO\n");
-                    dados.alias = TOKEN_ENTAO;
-                    strcpy(dados.value, "ENTAO");
+                    token.alias = TOKEN_ENTAO;
+                    strcpy(token.value, "ENTAO");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -616,11 +459,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 32: // TOKEN_FIM
-                    //printf("TOKEN_FIM\n");
-                    dados.alias = TOKEN_FIM;
-                    strcpy(dados.value, "FIM");
+                    token.alias = TOKEN_FIM;
+                    strcpy(token.value, "FIM");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -715,11 +557,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 42: // TOKEN_FIM_ENQUANTO
-                    //printf("TOKEN_FIM_ENQUANTO\n");
-                    dados.alias = TOKEN_FIM_ENQUANTO;
-                    strcpy(dados.value, "FIM_ENQUANTO");
+                    token.alias = TOKEN_FIM_ENQUANTO;
+                    strcpy(token.value, "FIM_ENQUANTO");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -740,11 +581,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 44: // TOKEN_FIM_SE
-                    //printf("TOKEN_FIM_SE\n");
-                    dados.alias = TOKEN_FIM_SE;
-                    strcpy(dados.value, "FIM_SE");
+                    token.alias = TOKEN_FIM_SE;
+                    strcpy(token.value, "FIM_SE");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -803,11 +643,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 50: // TOKEN_INICIO
-                    //printf("TOKEN_INICIO\n");
-                    dados.alias = TOKEN_INICIO;
-                    strcpy(dados.value, "INICIO");
+                    token.alias = TOKEN_INICIO;
+                    strcpy(token.value, "INICIO");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -855,11 +694,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 55: // TOKEN_INTEIRO
-                    //printf("TOKEN_INTEIRO\n");
-                    dados.alias = TOKEN_INTEIRO;
-                    strcpy(dados.value, "INTEIRO");
+                    token.alias = TOKEN_INTEIRO;
+                    strcpy(token.value, "INTEIRO");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -947,11 +785,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 64: // TOKEN_LISTA_INT
-                    //printf("TOKEN_LISTA_INT\n");
-                    dados.alias = TOKEN_LISTA_INT;
-                    strcpy(dados.value, "LISTA_INT");
+                    token.alias = TOKEN_LISTA_INT;
+                    strcpy(token.value, "LISTA_INT");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -990,11 +827,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 68: // TOKEN_LISTA_REAL
-                    //printf("TOKEN_LISTA_REAL\n");
-                    dados.alias = TOKEN_LISTA_REAL;
-                    strcpy(dados.value, "LISTA_REAL");
+                    token.alias = TOKEN_LISTA_REAL;
+                    strcpy(token.value, "LISTA_REAL");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1024,11 +860,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 71: // TOKEN_LEIA
-                    //printf("TOKEN_LEIA\n");
-                    dados.alias = TOKEN_LEIA;
-                    strcpy(dados.value, "LEIA");
+                    token.alias = TOKEN_LEIA;
+                    strcpy(token.value, "LEIA");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1103,11 +938,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 79: // TOKEN_PROGRAMA
-                    //printf("TOKEN_PROGRAMA\n");
-                    dados.alias = TOKEN_PROGRAMA;
-                    strcpy(dados.value, "PROGRAMA");
+                    token.alias = TOKEN_PROGRAMA;
+                    strcpy(token.value, "PROGRAMA");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1146,11 +980,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 83: // TOKEN_REAL
-                    //printf("TOKEN_REAL\n");
-                    dados.alias = TOKEN_REAL;
-                    strcpy(dados.value, "REAL");
+                    token.alias = TOKEN_REAL;
+                    strcpy(token.value, "REAL");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1171,11 +1004,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 85: // TOKEN_SE
-                    //printf("TOKEN_SE\n");
-                    dados.alias = TOKEN_SE;
-                    strcpy(dados.value, "SE");
+                    token.alias = TOKEN_SE;
+                    strcpy(token.value, "SE");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1202,18 +1034,17 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 87: // TOKEN_STRING
-                    //printf("TOKEN_STRING\n");
-                    dados.alias = TOKEN_STRING;
+                    token.alias = TOKEN_STRING;
 
                     // espia o caractere que trouxe ao estado e copia para o buffer auxiliar
                     auxBffr[j] = buffer[i - 1];
                     j++;
 
                     auxBffr[j] = '\0';
-                    strcpy(dados.value, auxBffr);
+                    strcpy(token.value, auxBffr);
                     j = 0;
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
 
@@ -1226,11 +1057,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 88: // TOKEN_VIRGULA
-                    //printf("TOKEN_VIRGULA\n");
-                    dados.alias = TOKEN_VIRGULA;
-                    strcpy(dados.value, ",");
+                    token.alias = TOKEN_VIRGULA;
+                    strcpy(token.value, ",");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1242,11 +1072,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 89: // TOKEN_ABRE_COLCHETES
-                    //printf("TOKEN_ABRE_COLCHETES\n");
-                    dados.alias = TOKEN_ABRE_COLCHETES;
-                    strcpy(dados.value, "[");
+                    token.alias = TOKEN_ABRE_COLCHETES;
+                    strcpy(token.value, "[");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1258,11 +1087,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 90: // TOKEN_FECHA_COLCHETES
-                    //printf("TOKEN_FECHA_COLCHETES\n");
-                    dados.alias = TOKEN_FECHA_COLCHETES;
-                    strcpy(dados.value, "]");
+                    token.alias = TOKEN_FECHA_COLCHETES;
+                    strcpy(token.value, "]");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1289,11 +1117,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 92: // TOKEN_PONTO
-                    //printf("TOKEN_PONTO\n");
-                    dados.alias = TOKEN_PONTO;
-                    strcpy(dados.value, ".");
+                    token.alias = TOKEN_PONTO;
+                    strcpy(token.value, ".");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1314,11 +1141,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 94: // TOKEN_MAIOR
-                    //printf("TOKEN_MAIOR\n");
-                    dados.alias = TOKEN_MAIOR;
-                    strcpy(dados.value, ".M.");
+                    token.alias = TOKEN_MAIOR;
+                    strcpy(token.value, ".M.");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1339,11 +1165,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 96: // TOKEN_MENOR
-                    //printf("TOKEN_MENOR\n");
-                    dados.alias = TOKEN_MENOR;
-                    strcpy(dados.value, ".m.");
+                    token.alias = TOKEN_MENOR;
+                    strcpy(token.value, ".m.");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1364,11 +1189,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 98: // TOKEN_IGUAL
-                    //printf("TOKEN_IGUAL\n");
-                    dados.alias = TOKEN_IGUAL;
-                    strcpy(dados.value, ".I.");
+                    token.alias = TOKEN_IGUAL;
+                    strcpy(token.value, ".I.");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1380,11 +1204,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 99: // TOKEN_SOMA
-                    //printf("TOKEN_SOMA\n");
-                    dados.alias = TOKEN_SOMA;
-                    strcpy(dados.value, "+");
+                    token.alias = TOKEN_SOMA;
+                    strcpy(token.value, "+");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1396,11 +1219,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 100: // TOKEN_SUBTRACAO
-                    //printf("TOKEN_SUBTRACAO\n");
-                    dados.alias = TOKEN_SUBTRACAO;
-                    strcpy(dados.value, "-");
+                    token.alias = TOKEN_SUBTRACAO;
+                    strcpy(token.value, "-");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1421,11 +1243,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 102: // TOKEN_ATRIBUICAO
-                    //printf("TOKEN_ATRIBUICAO\n");
-                    dados.alias = TOKEN_ATRIBUICAO;
-                    strcpy(dados.value, ":=");
+                    token.alias = TOKEN_ATRIBUICAO;
+                    strcpy(token.value, ":=");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1437,11 +1258,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 103: // TOKEN_MULTIPLICACAO
-                    //printf("TOKEN_MULTIPLICACAO\n");
-                    dados.alias = TOKEN_MULTIPLICACAO;
-                    strcpy(dados.value, "*");
+                    token.alias = TOKEN_MULTIPLICACAO;
+                    strcpy(token.value, "*");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1453,11 +1273,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 104: // // TOKEN_DIVISAO
-                    //printf("TOKEN_DIVISAO\n");
-                    dados.alias = TOKEN_DIVISAO;
-                    strcpy(dados.value, "/");
+                    token.alias = TOKEN_DIVISAO;
+                    strcpy(token.value, "/");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1496,13 +1315,12 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 106: // TOKEN_IDENTIFICADOR
-                    //printf("TOKEN_IDENTIFICADOR\n");
-                    dados.alias = TOKEN_IDENTIFICADOR;
+                    token.alias = TOKEN_IDENTIFICADOR;
                     auxBffr[j] = '\0';
-                    strcpy(dados.value, auxBffr);
+                    strcpy(token.value, auxBffr);
                     j = 0;
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1535,13 +1353,12 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 108: // TOKEN_NUMERO
-                    //printf("TOKEN_NUMERO\n");
-                    dados.alias = TOKEN_NUMERO;
+                    token.alias = TOKEN_NUMERO;
                     auxBffr[j] = '\0';
-                    strcpy(dados.value, auxBffr);
+                    strcpy(token.value, auxBffr);
                     j = 0;
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1553,11 +1370,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 109: // TOKEN_ABRE_PARENTESES
-                    //printf("TOKEN_ABRE_PARENTESES\n");
-                    dados.alias = TOKEN_ABRE_PARENTESES;
-                    strcpy(dados.value, "(");
+                    token.alias = TOKEN_ABRE_PARENTESES;
+                    strcpy(token.value, "(");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1569,11 +1385,10 @@ Lista *analiseLexica(){
 
                // ESTADO FINAL
                case 110: // TOKEN_FECHA_PARENTESES
-                    //printf("TOKEN_FECHA_PARENTESES\n");
-                    dados.alias = TOKEN_FECHA_PARENTESES;
-                    strcpy(dados.value, ")");
+                    token.alias = TOKEN_FECHA_PARENTESES;
+                    strcpy(token.value, ")");
 
-                    insereNo(tokens, chave, &dados, "back");
+                    insereNo(tokens, chave, &token, "back");
                     chave++;
 
                     estado = 0;
@@ -1591,7 +1406,7 @@ Lista *analiseLexica(){
 
                          i--; // retrocede
                     }else{
-                         flagErro = true;
+                         erro = true;
 
                          estado = 0;
 
@@ -1619,11 +1434,105 @@ Lista *analiseLexica(){
           i++;
      }
 
-     if(!flagErro){
+     if(!erro){
           printf("Análise Léxica bem-sucedida!\n");
      }else{
           fprintf(stderr, "Análise Léxica encerrou com erro(s).\n");
      }
 
      return tokens;
+}
+
+bool verificaFinal(int estado){
+     switch(estado){
+          case 6:   return true; // TOKEN_CADEIA
+          case 12:  return true; // TOKEN_CARACTER
+          case 19:  return true; // TOKEN_ESCREVA
+          case 26:  return true; // TOKEN_ENQUANTO
+          case 29:  return true; // TOKEN_ENTAO
+          case 32:  return true; // TOKEN_FIM
+          case 42:  return true; // TOKEN_FIM_ENQUANTO
+          case 44:  return true; // TOKEN_FIM_SE
+          case 50:  return true; // TOKEN_INICIO
+          case 55:  return true; // TOKEN_INTEIRO
+          case 64:  return true; // TOKEN_LISTA_INT
+          case 68:  return true; // TOKEN_LISTA_REAL
+          case 71:  return true; // TOKEN_LEIA
+          case 79:  return true; // TOKEN_PROGRAMA
+          case 83:  return true; // TOKEN_REAL
+          case 85:  return true; // TOKEN_SE
+          case 87:  return true; // TOKEN_STRING
+          case 88:  return true; // TOKEN_VIRGULA
+          case 89:  return true; // TOKEN_ABRE_COLCHETES
+          case 90:  return true; // TOKEN_FECHA_COLCHETES
+          case 92:  return true; // TOKEN_PONTO
+          case 94:  return true; // TOKEN_MAIOR
+          case 96:  return true; // TOKEN_MENOR
+          case 98:  return true; // TOKEN_IGUAL
+          case 99:  return true; // TOKEN_SOMA
+          case 100: return true; // TOKEN_SUBTRACAO
+          case 102: return true; // TOKEN_ATRIBUICAO
+          case 103: return true; // TOKEN_MULTIPLICACAO
+          case 104: return true; // TOKEN_DIVISAO
+          case 106: return true; // TOKEN_IDENTIFICADOR
+          case 108: return true; // TOKEN_NUMERO
+          case 109: return true; // TOKEN_ABRE_PARENTESES
+          case 110: return true; // TOKEN_FECHA_PARENTESES
+
+          default: return false;
+     }
+}
+
+char *preencheEntrada(){
+     int i = 0; // índice no buffer
+     char *buffer = NULL;
+     int buffer_size = 1024;
+     char c;
+
+     buffer = (char*) malloc(sizeof(char) * buffer_size);
+
+     while(true){
+          c = getchar();
+
+          if(c == EOF){
+               buffer[i] = '\0';
+
+               break;
+          }
+
+          // ignora comentários
+          if(c == '{'){
+               while(c != '}'){
+                    c = getchar();
+
+                    if(c == EOF){
+                         buffer[i] = '\0';
+                    
+                         break;
+                    }
+               }
+
+               c = getchar(); // consome '}'
+          }
+          //
+
+          buffer[i] = c;
+
+          i++;
+
+          // redimensiona o buffer (método rápido)
+          if(i >= buffer_size){
+               buffer_size += 1024; // aumenta o buffer em 1KB
+
+               buffer = (char*) realloc(buffer, sizeof(char) * buffer_size);
+          }
+     }
+
+     if(i > 0){
+          return buffer;
+     }else{
+          free(buffer);
+
+          return NULL;
+     }
 }

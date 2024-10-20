@@ -1,15 +1,17 @@
 /*
     Para a gramática:
 
-    V = {PGRM, DECL, DECL_REC, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL SEQ_ID_MUL, 
-         SEQ_ID_MUL_REC, CMD, CMD_REC, CMD_UNICO, ESCREVA_REC, EXPR_REL, OP_REL,
-         EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
+    G = (V, Σ, P, PGRM).
 
-    Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, CADEIA, LISTA_INT, LISTA_REAL,
-         ',', '[', num, ']', ENQUANTO, ENTAO, FIM_ENQUANTO, SE, FIM_SE, ESCREVA, str, LEIA,
-         .M., .m., .I., '+', '-', :=, '*', '/', '(', ')'}.
+    V = {PGRM, DECL, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL, SEQ_ID_MUL, SEQ_ID_MUL_REC, 
+         CMD, ESCREVA_REC, EXPR_REL, EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
 
-    P = {PGRM -> PROGRAMA id INICIO DECL CMD FIM;
+    Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
+         LISTA_REAL, '[', num, ']', ENQUANTO, SE, ENTAO, FIM_SE, ESCREVA, str, LEIA,
+         ':=', .M., .m., .I., '+', '-', '*', '/', '(', ')', FIM_ENQUANTO}.
+
+    P = {
+         PGRM -> PROGRAMA id INICIO DECL CMD FIM;
 
          DECL -> TIPO SEQ_ID DECL         |
                  TIPO_MUL SEQ_ID_MUL DECL |
@@ -47,9 +49,9 @@
                         ',' id '[' id ']' ESCREVA_REC  |
                         ε;
 
-         EXPR_REL -> EXPR OP_REL EXPR;
-        
-         OP_REL -> .M. | .m. | .I.;
+         EXPR_REL -> EXPR .M. EXPR |
+                     EXPR .m. EXPR |
+                     EXPR .I. EXPR;
 
          EXPR -> TERMO EXPR_REC;
 
@@ -69,13 +71,22 @@
                   id             |
                   id '[' num ']' |
                   id '[' id ']';
+        }.
 
-    id = letra(digito|letra)*
+    id = letra(dígito|letra)*
 
-    str = '\''(letra|numero)*'\''
+    str = '\''(letra|dígito)*'\''
 
-    num = digitodigito*
+    num = dígitodígito*
 */
+
+//
+// Implementação de Analisador Sintático Recursivo
+//
+// Projeto de Compiladores, 21 de outubro de 2024.
+//
+// Rafael Renó Corrêa, 2022000403
+//
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,10 +96,12 @@
 
 #include "sintatica.h"
 
+// VARIÁVEIS GLOBAIS //
 bool debug = false;
 Token *token; // token atual
 Lista *tokens; // lista de tokens
 int chave = 1; // chave na lista
+///////////////////////
 
 bool analiseSintatica(Lista *ptr, bool flag){
     debug = flag;
@@ -548,5 +561,5 @@ void proxToken(char *estado, char *tokenEsperado){
 }
 
 void falha(char *estado, char *tokenEsperado, char *tokenObtido){
-    if(debug)fprintf(stderr, "\033[1;31mErro: \033[0m(%s : %d) %s : %s\n", estado, chave, tokenEsperado, tokenObtido);
+    if(debug)fprintf(stderr, "Erro: (%s : %d) %s : %s\n", estado, chave, tokenEsperado, tokenObtido);
 }
