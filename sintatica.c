@@ -270,7 +270,9 @@ void SEQ_ID_MUL_REC(){ // SEQ_ID_MUL_REC -> ',' id '[' num ']' SEQ_ID_MUL_REC |
 void CMD(){ // CMD -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD |
             //        SE EXPR_REL ENTAO CMD FIM_SE CMD       |
             //        ESCREVA str ESCREVA_REC CMD            |
-            //        ESCREVA SEQ_ID ESCREVA_REC CMD         |
+            //        ESCREVA id ESCREVA_REC CMD             |
+            //        ESCREVA id '[' num ']' ESCREVA_REC CMD |
+            //        ESCREVA id '[' id ']' ESCREVA_REC CMD  |
             //        LEIA SEQ_ID CMD                        |
             //        LEIA SEQ_ID_MUL CMD                    |
             //        SEQ_ID := EXPR CMD                     |
