@@ -7,7 +7,7 @@ V = {PGRM, DECL, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL, SEQ_ID_MUL, SEQ_ID_MUL_REC,
 
 Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
      LISTA_REAL, '[', num, ']', ENQUANTO, SE, ENTAO, FIM_SE, ESCREVA, str, LEIA,
-     ':=', .M., .m., .I., '+', '-', '*', '/', '(', ')', FIM_ENQUANTO}.
+     ':=', .M., .m., .I., '+', '-', '*', '/', '.', '(', ')', FIM_ENQUANTO}.
 
 P = {
      PGRM -> PROGRAMA id INICIO DECL CMD FIM;

@@ -8,7 +8,7 @@ Analisador Léxico e Analisador Sintático Ascendente LALR(1) _Flex + Yacc_ para
 
 - Analisador Sintático:
 
-`yacc -d parser.y" (Windows) ou "bison -d parser.y (Linux)`
+`yacc -d parser.y (Windows) ou bison -d parser.y (Linux)`
 
 > Cria o `parser.tab.c` e o `parser.tab.h`.
 
