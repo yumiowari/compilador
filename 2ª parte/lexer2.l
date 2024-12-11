@@ -47,7 +47,8 @@
 ")"                   { printf("Token FECHA_PARENTESES: %s\n", yytext); return FECHA_PARENTESES; }
 
 [a-zA-Z][a-zA-Z0-9_]* { printf("Token ID: %s\n", yytext); return ID; }
-[0-9]+                { printf("Token NUM: %s\n", yytext); return NUM; }
+[0-9]*"."[0-9]+       { yylval.fnum = atof(yytext); printf("Token FNUM: %f\n", yylval.fnum); return FNUM; } // verifica se é float primeiro!
+[0-9]+                { yylval.num = atoi(yytext); printf("Token NUM: %d\n", yylval.num); return NUM; }
 \'.*?\'               { printf("Token STR: %s\n", yytext); return STR; }
 
 .                     { printf("Token desconhecido: %s\n", yytext); }

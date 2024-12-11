@@ -14,9 +14,15 @@ int yylex(void);
 void yyerror(const char *s);
 %}
 
+// união de tipos p/ o yylval
+%union{
+	int num;    // quando inteiro
+	float fnum; // quando real
+	int str;    // quando string
+}
+
 // declaração de tokens
 %token PROGRAMA
-%token ID
 %token INICIO
 %token FIM
 %token INTEIRO
@@ -27,7 +33,6 @@ void yyerror(const char *s);
 %token LISTA_INT
 %token LISTA_REAL
 %token ABRE_COLCHETES
-%token NUM
 %token FECHA_COLCHETES
 %token ENQUANTO
 %token FIM_ENQUANTO
@@ -38,7 +43,6 @@ void yyerror(const char *s);
 %token MENOR
 %token IGUAL
 %token ESCREVA
-%token STR
 %token LEIA
 %token ATRIB
 %token SOMA
@@ -47,6 +51,11 @@ void yyerror(const char *s);
 %token DIV
 %token ABRE_PARENTESES
 %token FECHA_PARENTESES
+
+%token <str> ID
+%token <num> NUM
+%token <fnum> FNUM
+%token <str> STR
 
 %start PGRM
 
@@ -146,6 +155,7 @@ TERMO:
 FATOR:
     ABRE_PARENTESES EXPR FECHA_PARENTESES
     | NUM
+    | FNUM
     | ID
     | ARR
     ;

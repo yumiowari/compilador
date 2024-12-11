@@ -7,7 +7,7 @@ INTEIRO argumento, fatorial
 LEIA argumento
 fatorial := argumento
 SE argumento .I. 0
-ENTAO fatorial := 1
+ENTAO fatorial := 1.5
 FIM_SE
 ENQUANTO argumento .M. 1
 fatorial := fatorial * argumento
