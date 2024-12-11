@@ -121,7 +121,7 @@ ESCREVA_REC:
     | VIRGULA ARR ESCREVA_REC
     | /* vazio */
     ;
-    
+
 CMD_SCANF:
     LEIA ID SEQ_ID
     | LEIA ARR SEQ_ARR
@@ -158,5 +158,9 @@ void yyerror(const char *s) {
 }
 
 int main() {
+    if(yyparse() == 0){ // yyparse() retorna 0 em caso de sucesso
+        printf("Análise Sintática Ascendente concluída!\n");
+    }
+
     return yyparse();
 }
