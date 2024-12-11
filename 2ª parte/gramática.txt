@@ -14,7 +14,7 @@ P = {
 
      DECL -> TIPO SEQ_ID DECL         |
              TIPO_MUL SEQ_ID_MUL DECL |
-             ε                        ;
+                                       ;
 
      TIPO -> INTEIRO | REAL | CARACTER;
 

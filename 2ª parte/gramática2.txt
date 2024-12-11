@@ -1,0 +1,30 @@
+É a gramática:
+
+G = (V, Σ, P, PGRM).
+
+V = {PGRM, DECL, CMD, TIPO, SEQ_ID, ARR, SEQ_ARR}.
+
+Σ = {PROGRAMA, ID, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', '[', NUM, ']', }.
+
+P = 
+{
+    PGRM -> PROGRAMA ID INICIO DECL CMD FIM;
+
+    DECL -> TIPO ID SEQ_ID DECL   |
+            TIPO ARR SEQ_ARR DECL |
+            ε                     ;
+
+    TIPO -> INTEIRO  |
+            REAL     |
+            CARACTER ;
+
+    SEQ_ID -> ',' ID SEQ_ID |
+              ε             ;
+
+    ARR -> ID '[' NUM ']' |
+           ID '[' ID ']'  ;
+
+    SEQ_ARR -> ',' ARR SEQ_ARR |
+               ε               ; 
+}
+
