@@ -2,80 +2,79 @@
 
 G = (V, Σ, P, PGRM).
 
-V = {PGRM, DECL, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL, SEQ_ID_MUL, SEQ_ID_MUL_REC, 
-     CMD, ESCREVA_REC, EXPR_REL, EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
+V = {PGRM, DECL, CMD, TIPO, SEQ_ID, TIPO_ARR, SEQ_ARR, EXPR_REL,
+     CMD_REPET, EXPR, CMD_PRINT, ESCREVA_REC, CMD_SCANF, CMD_ATRIB, TERMO, FATOR}.
 
-Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
-     LISTA_REAL, '[', num_int, num_float, ']', ENQUANTO, SE, ENTAO, FIM_SE, ESCREVA, str, LEIA,
-     ':=', .M., .m., .I., '+', '-', '*', '/', '(', ')', FIM_ENQUANTO}.
+Σ = {PROGRAMA, ID, INICIO, FIM, ARR, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
+     LISTA_REAL, '[', NUM, ']', ENQUANTO, FIM_ENQUANTO, SE, ENTAO, FIM_SE, .M., .m.,
+     .I., ESCREVA, STR, LEIA, :=, '+', '-', '*', '/', '(', ')'}.
 
-P = {
-     PGRM -> PROGRAMA id INICIO DECL CMD FIM;
+P = 
+{
+    PGRM -> PROGRAMA ID INICIO DECL CMD FIM;
 
-     DECL -> TIPO SEQ_ID DECL         |
-             TIPO_MUL SEQ_ID_MUL DECL |
-                                       ;
+    DECL -> TIPO ID SEQ_ID DECL       |
+            TIPO_ARR ARR SEQ_ARR DECL |
+            ε                         ;
 
-     TIPO -> INTEIRO | REAL | CARACTER;
+    TIPO -> INTEIRO  |
+            REAL     |
+            CARACTER ;
 
-     SEQ_ID -> id SEQ_ID_REC;
+    SEQ_ID -> ',' ID SEQ_ID |
+              ε             ;
 
-     SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
+    TIPO_ARR -> CADEIA     |
+                LISTA_INT  |
+                LISTA_REAL ;
 
-     TIPO_MUL -> CADEIA | LISTA_INT | LISTA_REAL;
+    ARR -> ID '[' NUM ']' |
+           ID '[' ID ']'  ;
 
-     SEQ_ID_MUL -> id '[' num_int ']' SEQ_ID_MUL_REC |
-                   id '[' id ']' SEQ_ID_MUL_REC      ;
+    SEQ_ARR -> ',' ARR SEQ_ARR |
+               ε               ;
 
-     SEQ_ID_MUL_REC -> ',' id '[' num_int ']' SEQ_ID_MUL_REC |
-                       ',' id '[' id ']' SEQ_ID_MUL_REC      |
-                       ε                                     ;
+    CMD -> CMD_REPET CMD |
+           CMD_PRINT CMD |
+           CMD_SCANF CMD |
+           CMD_ATRIB CMD |
+           ε             ;
 
-     CMD -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD     |
-            SE EXPR_REL ENTAO CMD FIM_SE CMD           |
-            ESCREVA str ESCREVA_REC CMD                |
-            ESCREVA id ESCREVA_REC CMD                 |
-            ESCREVA id '[' num_int ']' ESCREVA_REC CMD |
-            ESCREVA id '[' id ']' ESCREVA_REC CMD      |
-            LEIA SEQ_ID CMD                            |
-            LEIA SEQ_ID_MUL CMD                        |
-            SEQ_ID := EXPR CMD                         |
-            ε                                          ;
-
-    ESCREVA_REC -> ',' str ESCREVA_REC                |
-                   ',' id ESCREVA_REC                 |
-                   ',' id '[' num_int ']' ESCREVA_REC |
-                   ',' id '[' id ']' ESCREVA_REC      |
-                   ε                                  ;
+    CMD_REPET -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD |
+                 SE EXPR_REL ENTAO CMD FIM_SE CMD       ;
 
     EXPR_REL -> EXPR .M. EXPR |
                 EXPR .m. EXPR |
                 EXPR .I. EXPR ;
 
-    EXPR -> TERMO EXPR_REC;
+    CMD_PRINT -> ESCREVA STR ESCREVA_REC |
+                 ESCREVA ID ESCREVA_REC  |
+                 ESCREVA ARR ESCREVA_REC ;
 
-    EXPR_REC -> '+' TERMO EXPR_REC |
-                '-' TERMO EXPR_REC |
-                ε                  ;
+    ESCREVA_REC -> ',' STR ESCREVA_REC |
+                   ',' ID ESCREVA_REC  |
+                   ',' ARR ESCREVA_REC |
+                   ε                   ;
 
-    TERMO -> FATOR TERMO_REC;
+    SEQ_STR -> ',' STR SEQ_STR |
+               ε               ;
 
-    TERMO_REC -> '*' FATOR TERMO_REC |
-                 '/' FATOR TERMO_REC |
-                 ε                   ;
+    CMD_SCANF -> LEIA ID SEQ_ID   |
+                 LEIA ARR SEQ_ARR ;
 
-    FATOR -> '(' EXPR ')'       |
-             num_int            |
-             num_float          |
-             id                 |
-             id '[' num_int ']' |
-             id '[' id ']'      ;
-    }.
+    CMD_ATRIB -> ID SEQ_ID := EXPR CMD;
 
-id = letra(dígito|letra)*
+    EXPR -> TERMO          |
+            EXPR '+' TERMO |
+            EXPR '-' TERMO ;
 
-str = '\''(letra|dígito)*'\''
+    TERMO -> FATOR           |
+             TERMO '*' FATOR |
+             TERMO '/' FATOR ;
 
-num_int = dígitodígito*
+    FATOR -> '(' EXPR ')' |
+             NUM          |
+             ID           |
+             ARR          ;
+}
 
-num_float = digitodigito*'.'digitodigito*

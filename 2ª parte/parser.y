@@ -14,14 +14,15 @@ int yylex(void);
 void yyerror(const char *s);
 %}
 
+// união de tipos p/ o yylval
 %union{
-	int ival;   // p/ inteiros
-	float fval; // p/ reais
+	int num;    // quando inteiro
+	float fnum; // quando real
+	char *str;  // quando string
 }
 
 // declaração de tokens
 %token PROGRAMA
-%token ID
 %token INICIO
 %token FIM
 %token INTEIRO
@@ -32,27 +33,29 @@ void yyerror(const char *s);
 %token LISTA_INT
 %token LISTA_REAL
 %token ABRE_COLCHETES
-%token <ival> NUM_INT
-%token <fval> NUM_FLOAT
 %token FECHA_COLCHETES
 %token ENQUANTO
+%token FIM_ENQUANTO
 %token SE
 %token ENTAO
 %token FIM_SE
-%token ESCREVA
-%token STR
-%token LEIA
-%token ATRIBUICAO
 %token MAIOR
 %token MENOR
 %token IGUAL
+%token ESCREVA
+%token LEIA
+%token ATRIB
 %token SOMA
-%token SUBTRACAO
-%token MULTIPLICACAO
-%token DIVISAO
+%token SUB
+%token MULTI
+%token DIV
 %token ABRE_PARENTESES
 %token FECHA_PARENTESES
-%token FIM_ENQUANTO
+
+%token <str> ID
+%token <num> NUM
+%token <fnum> FNUM
+%token <str> STR
 
 %start PGRM
 
@@ -61,14 +64,11 @@ void yyerror(const char *s);
 // Regras da gramática
 PGRM:
     PROGRAMA ID INICIO DECL CMD FIM
-    {
-     printf("Reconheceu :)\n");
-    }
     ;
 
 DECL:
-    TIPO SEQ_ID DECL
-    | TIPO_MUL SEQ_ID_MUL DECL
+    TIPO ID SEQ_ID DECL
+    | TIPO_ARR ARR SEQ_ARR DECL
     | /* vazio */
     ;
 
@@ -79,50 +79,37 @@ TIPO:
     ;
 
 SEQ_ID:
-    ID SEQ_ID_REC
-    ;
-
-SEQ_ID_REC:
-    VIRGULA ID SEQ_ID_REC
+    VIRGULA ID SEQ_ID
     | /* vazio */
     ;
 
-TIPO_MUL:
+TIPO_ARR:
     CADEIA
     | LISTA_INT
     | LISTA_REAL
     ;
 
-SEQ_ID_MUL:
-    ID ABRE_COLCHETES NUM_INT FECHA_COLCHETES SEQ_ID_MUL_REC
-    | ID ABRE_COLCHETES ID FECHA_COLCHETES SEQ_ID_MUL_REC
+ARR:
+    ID ABRE_COLCHETES NUM FECHA_COLCHETES
+    | ID ABRE_COLCHETES ID FECHA_COLCHETES
     ;
 
-SEQ_ID_MUL_REC:
-    VIRGULA ID ABRE_COLCHETES NUM_INT FECHA_COLCHETES SEQ_ID_MUL_REC
-    | VIRGULA ID ABRE_COLCHETES ID FECHA_COLCHETES SEQ_ID_MUL_REC
+SEQ_ARR:
+    VIRGULA ARR SEQ_ARR
     | /* vazio */
     ;
 
 CMD:
-    ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD
-    | SE EXPR_REL ENTAO CMD FIM_SE CMD
-    | ESCREVA STR ESCREVA_REC CMD
-    | ESCREVA ID ESCREVA_REC CMD
-    | ESCREVA ID ABRE_COLCHETES NUM_INT FECHA_COLCHETES ESCREVA_REC CMD
-    | ESCREVA ID ABRE_COLCHETES ID FECHA_COLCHETES ESCREVA_REC CMD
-    | LEIA SEQ_ID CMD
-    | LEIA SEQ_ID_MUL CMD
-    | SEQ_ID ATRIBUICAO EXPR CMD
+    CMD_REPET CMD
+    | CMD_PRINT CMD
+    | CMD_SCANF CMD
+    | CMD_ATRIB CMD
     | /* vazio */
     ;
 
-ESCREVA_REC:
-    VIRGULA STR ESCREVA_REC
-    | VIRGULA ID ESCREVA_REC
-    | VIRGULA ID ABRE_COLCHETES NUM_INT FECHA_COLCHETES ESCREVA_REC
-    | VIRGULA ID ABRE_COLCHETES ID FECHA_COLCHETES ESCREVA_REC
-    | /* vazio */
+CMD_REPET:
+    ENQUANTO EXPR_REL CMD FIM_ENQUANTO
+    | SE EXPR_REL ENTAO CMD FIM_SE
     ;
 
 EXPR_REL:
@@ -131,33 +118,46 @@ EXPR_REL:
     | EXPR IGUAL EXPR
     ;
 
-EXPR:
-    TERMO EXPR_REC
+CMD_PRINT:
+    ESCREVA STR ESCREVA_REC
+    | ESCREVA ID ESCREVA_REC
+    | ESCREVA ARR ESCREVA_REC
     ;
 
-EXPR_REC:
-    SOMA TERMO EXPR_REC
-    | SUBTRACAO TERMO EXPR_REC
+ESCREVA_REC:
+    VIRGULA STR ESCREVA_REC
+    | VIRGULA ID ESCREVA_REC
+    | VIRGULA ARR ESCREVA_REC
     | /* vazio */
+    ;
+
+CMD_SCANF:
+    LEIA ID SEQ_ID
+    | LEIA ARR SEQ_ARR
+    ;
+
+CMD_ATRIB:
+    ID SEQ_ID ATRIB EXPR
+    ;
+
+EXPR:
+    TERMO
+    | EXPR SOMA TERMO
+    | EXPR SUB TERMO
     ;
 
 TERMO:
-    FATOR TERMO_REC
-    ;
-
-TERMO_REC:
-    MULTIPLICACAO FATOR TERMO_REC
-    | DIVISAO FATOR TERMO_REC
-    | /* vazio */
+    FATOR
+    | TERMO MULTI FATOR
+    | TERMO DIV FATOR
     ;
 
 FATOR:
     ABRE_PARENTESES EXPR FECHA_PARENTESES
-    | NUM_INT
-    | NUM_FLOAT
+    | NUM
+    | FNUM
     | ID
-    | ID ABRE_COLCHETES NUM_INT FECHA_COLCHETES
-    | ID ABRE_COLCHETES ID FECHA_COLCHETES
+    | ARR
     ;
 
 %%
@@ -168,5 +168,9 @@ void yyerror(const char *s) {
 }
 
 int main() {
+    if(yyparse() == 0){ // yyparse() retorna 0 em caso de sucesso
+        printf("Análise Sintática Ascendente concluída!\n");
+    }
+
     return yyparse();
 }
