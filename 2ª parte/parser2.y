@@ -18,7 +18,7 @@ void yyerror(const char *s);
 %union{
 	int num;    // quando inteiro
 	float fnum; // quando real
-	int str;    // quando string
+	char *str;  // quando string
 }
 
 // declaração de tokens

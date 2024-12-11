@@ -9,6 +9,7 @@
 #include "parser.tab.h" // cabeçalho gerado pelo Yacc/Bison
 #include <stdio.h> // printf()
 #include <stdlib.h> // atoi(), atof()
+#include <string.h> // strdup()
 %}
 
 %%
@@ -46,10 +47,10 @@
 "("                   { printf("Token ABRE_PARENTESES: %s\n", yytext); return ABRE_PARENTESES; }
 ")"                   { printf("Token FECHA_PARENTESES: %s\n", yytext); return FECHA_PARENTESES; }
 
-[a-zA-Z][a-zA-Z0-9_]* { printf("Token ID: %s\n", yytext); return ID; }
+[a-zA-Z][a-zA-Z0-9_]* { yylval.str = strdup(yytext); printf("Token ID: %s\n", yylval.str); return ID; }
 [0-9]*"."[0-9]+       { yylval.fnum = atof(yytext); printf("Token FNUM: %f\n", yylval.fnum); return FNUM; } // verifica se é float primeiro!
 [0-9]+                { yylval.num = atoi(yytext); printf("Token NUM: %d\n", yylval.num); return NUM; }
-\'.*?\'               { printf("Token STR: %s\n", yytext); return STR; }
+\'.*?\'               { yylval.str = strdup(yytext); printf("Token STR: %s\n", yylval.str); return STR; }
 
 .                     { printf("Token desconhecido: %s\n", yytext); }
 
