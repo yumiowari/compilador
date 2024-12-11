@@ -66,7 +66,7 @@ P = {
 
     FATOR -> '(' EXPR ')'       |
              num_int            |
-             num_floag          |
+             num_float          |
              id                 |
              id '[' num_int ']' |
              id '[' id ']'      ;
