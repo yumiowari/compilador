@@ -56,9 +56,6 @@
 
 %%
 
-// yywrap() é chamada quando todo o conteúdo do arquivo de entrada foi processado.
-int yywrap() {
-    printf("Análise Léxica concluída!\n");
-
+int yywrap(){
     return 1;
 }

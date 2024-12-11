@@ -64,9 +64,6 @@ void yyerror(const char *s);
 // Regras da gramática
 PGRM:
     PROGRAMA ID INICIO DECL CMD FIM
-    {
-	printf("Reconheceu o algoritmo!\n");
-    }
     ;
 
 DECL:
@@ -166,10 +163,14 @@ FATOR:
 %%
 
 // tratamento de erro
-void yyerror(const char *s){
+void yyerror(const char *s) {
     fprintf(stderr, "Erro: %s\n", s);
 }
 
-int main(){
+int main() {
+    if(yyparse() == 0){ // yyparse() retorna 0 em caso de sucesso
+        printf("Análise Sintática Ascendente concluída!\n");
+    }
+
     return yyparse();
 }
