@@ -1,0 +1,81 @@
+É a gramática:
+
+G = (V, Σ, P, PGRM).
+
+V = {PGRM, DECL, TIPO, SEQ_ID, SEQ_ID_REC, TIPO_MUL, SEQ_ID_MUL, SEQ_ID_MUL_REC, 
+     CMD, ESCREVA_REC, EXPR_REL, EXPR, EXPR_REC, TERMO, TERMO_REC, FATOR}.
+
+Σ = {PROGRAMA, id, INICIO, FIM, INTEIRO, REAL, CARACTER, ',', CADEIA, LISTA_INT,
+     LISTA_REAL, '[', num_int, num_float, ']', ENQUANTO, SE, ENTAO, FIM_SE, ESCREVA, str, LEIA,
+     ':=', .M., .m., .I., '+', '-', '*', '/', '(', ')', FIM_ENQUANTO}.
+
+P = {
+     PGRM -> PROGRAMA id INICIO DECL CMD FIM;
+
+     DECL -> TIPO SEQ_ID DECL         |
+             TIPO_MUL SEQ_ID_MUL DECL |
+             ε                        ;
+
+     TIPO -> INTEIRO | REAL | CARACTER;
+
+     SEQ_ID -> id SEQ_ID_REC;
+
+     SEQ_ID_REC -> ',' id SEQ_ID_REC | ε;
+
+     TIPO_MUL -> CADEIA | LISTA_INT | LISTA_REAL;
+
+     SEQ_ID_MUL -> id '[' num_int ']' SEQ_ID_MUL_REC |
+                   id '[' id ']' SEQ_ID_MUL_REC      ;
+
+     SEQ_ID_MUL_REC -> ',' id '[' num_int ']' SEQ_ID_MUL_REC |
+                       ',' id '[' id ']' SEQ_ID_MUL_REC      |
+                       ε                                     ;
+
+     CMD -> ENQUANTO EXPR_REL CMD FIM_ENQUANTO CMD     |
+            SE EXPR_REL ENTAO CMD FIM_SE CMD           |
+            ESCREVA str ESCREVA_REC CMD                |
+            ESCREVA id ESCREVA_REC CMD                 |
+            ESCREVA id '[' num_int ']' ESCREVA_REC CMD |
+            ESCREVA id '[' id ']' ESCREVA_REC CMD      |
+            LEIA SEQ_ID CMD                            |
+            LEIA SEQ_ID_MUL CMD                        |
+            SEQ_ID := EXPR CMD                         |
+            ε                                          ;
+
+    ESCREVA_REC -> ',' str ESCREVA_REC                |
+                   ',' id ESCREVA_REC                 |
+                   ',' id '[' num_int ']' ESCREVA_REC |
+                   ',' id '[' id ']' ESCREVA_REC      |
+                   ε                                  ;
+
+    EXPR_REL -> EXPR .M. EXPR |
+                EXPR .m. EXPR |
+                EXPR .I. EXPR ;
+
+    EXPR -> TERMO EXPR_REC;
+
+    EXPR_REC -> '+' TERMO EXPR_REC |
+                '-' TERMO EXPR_REC |
+                ε                  ;
+
+    TERMO -> FATOR TERMO_REC;
+
+    TERMO_REC -> '*' FATOR TERMO_REC |
+                 '/' FATOR TERMO_REC |
+                 ε                   ;
+
+    FATOR -> '(' EXPR ')'       |
+             num_int            |
+             num_floag          |
+             id                 |
+             id '[' num_int ']' |
+             id '[' id ']'      ;
+    }.
+
+id = letra(dígito|letra)*
+
+str = '\''(letra|dígito)*'\''
+
+num_int = dígitodígito*
+
+num_float = digitodigito*'.'digitodigito*
